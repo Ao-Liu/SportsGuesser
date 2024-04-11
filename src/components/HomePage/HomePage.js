@@ -1,7 +1,11 @@
 import React from 'react'
 import { Typography } from '@mui/material'
+import { useNavigate } from 'react-router-dom'; // useNavigate to link to other page
+
 
 const HomePage = () => {
+  const navigate = useNavigate(); // initialize
+
   const typoStyle = {
     color: '#424242',
     fontFamily: 'Monospace',
@@ -26,6 +30,8 @@ const HomePage = () => {
         duis. Aliquip sit ipsum proident irure.
       </Typography>
       <br />
+      <br />
+      <button onClick={() => navigate('/index')}>Go to Index Page</button> {/* add button to index page */}
       <br />
     </div>
   )

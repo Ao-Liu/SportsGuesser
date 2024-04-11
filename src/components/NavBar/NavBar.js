@@ -23,6 +23,9 @@ const Navbar = () => {
         <TouchBarBtn component={Link} to="/nav4" variant="text" size="large" color="primary">
           nav4
         </TouchBarBtn>
+        <TouchBarBtn component={Link} to="/a-page" variant="text" size="large" color="secondary">
+          aaaaa
+        </TouchBarBtn>
       </Toolbar>
     </AppBar>
   )
