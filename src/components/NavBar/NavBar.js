@@ -6,7 +6,7 @@ import { TouchBarBtn } from './styles';
 
 const Navbar = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
+  {/**  TODO: set if loggin*/}
   const handleLoginLogout = () => {
     setIsLoggedIn(!isLoggedIn);
   };
