@@ -4,13 +4,7 @@ import Toolbar from '@mui/material/Toolbar';
 import { Link } from 'react-router-dom';
 import { TouchBarBtn } from './styles';
 
-const Navbar = () => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  {/**  TODO: set if loggin*/}
-  const handleLoginLogout = () => {
-    setIsLoggedIn(!isLoggedIn);
-  };
-
+const Navbar = ({ isLoggedIn, handleLoginLogout }) => {
   return (
     <AppBar elevation={0} position="static" color="inherit" sx={{ fontFamily: '"Baloo 2", cursive' }}>
       <Toolbar>
