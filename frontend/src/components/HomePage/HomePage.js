@@ -1,4 +1,5 @@
-import exampleImage from './GEO.jpg'; // Import image
+import exampleImage from './geoicon.webp'; // Import image
+import mapImage from './map-explore.gif'; // Import image
 import React, { useState, useEffect, useRef } from 'react';
 import { Typography, Paper, Box, Grow, Divider } from '@mui/material'; // 引入 Divider 组件
 import { styled } from '@mui/material/styles';
@@ -22,9 +23,9 @@ const IndexPage = () => {
     return (
       <li>
         {icon}
-        <span style={{ fontSize: '26px', color: 'darkBlue', fontWeight: 'bold' }}>{pre}:</span>
+        <span style={{ fontSize: '33px', color: 'darkBlue', fontWeight: 'bold' }}>{pre}:</span>
         <br />
-        <span style={{ fontSize: '20px', color: '#4682B4' }}>{post}</span>
+        <span style={{ fontSize: '26px', color: '#4682B4' }}>{post}</span>
       </li>
     );
   };
@@ -42,8 +43,9 @@ const IndexPage = () => {
           }}>
             Welcome to <span style={{ color: '#1E90FF' }}>GeoGym Guess Quest</span> !
           </Typography>
-          <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
-            <img src={exampleImage} alt="Example Scene" style={{ maxWidth: '80%', height: 'auto', borderRadius: '8px' }} />
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '40px', marginTop: '40px' }}>
+            {/* border-radius: circle shape */}
+            <img src={exampleImage} alt="Example Scene" style={{ maxWidth: '45%', height: 'auto', borderRadius: '50%', border: '5px solid #4169E1' }} />
           </Box>
           <Typography variant="h4" align="center" sx={{
             color: '#7B68EE',
@@ -63,7 +65,7 @@ const IndexPage = () => {
           }}>
             Your challenge is to explore your surroundings, pick up clues from the environment, and make your guess on the world map. The closer your guess is to the actual location, the higher your score!
           </Typography>
-          {/* 灰色分隔条 */}
+          {/* grey line */}
           <Divider sx={{ my: 16, bgcolor: 'lightgrey' }} /> 
           <Typography variant="h4" align="center" sx={{
             color: 'darkBlue',
@@ -74,12 +76,15 @@ const IndexPage = () => {
           }}>
             Game Rules
           </Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', marginBottom: '20px' }}>
+            <img src={mapImage} alt="Example Scene" style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }} />
+          </Box>
           <Typography variant="body1" align="left" sx={{
             fontFamily: '"Baloo 2", cursive',
             lineHeight: '1.8'
           }}>
             <ul ref={ref} style={{ listStyleType: 'none', padding: 0 }}>
-              {renderItemText(<PlaceIcon />, "Placement: Players are placed in a random location using Google Maps Street View, but only at locations near gyms or fitness centers.")}
+              {renderItemText(<PlaceIcon />, "Placement: Players are placed in a random location using Google Maps Street View, especially at locations near gyms or fitness centers.")}
               {renderItemText(<ExploreIcon />, "Exploration: Players can explore their surroundings by navigating in Street View mode. Focus on identifying gyms or fitness centers.")}
               {renderItemText(<HelpOutlineIcon />, "Guessing: After exploring, place a marker on a world map provided by GeoGuessr. The goal is to accurately guess the gym's location.")}
               {renderItemText(<ScoreIcon />, "Scoring: Points are awarded based on the accuracy of the guess. The closer the guess to the gym, the more points earned.")}
