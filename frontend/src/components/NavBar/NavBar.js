@@ -28,6 +28,13 @@ const Navbar = () => {
         }}>
           Game
         </TouchBarBtn>
+        <TouchBarBtn component={Link} to="/websocket" variant="text" size="large" color="primary" sx={{ 
+          fontFamily: '"Baloo 2", cursive', 
+          fontSize: '30px', 
+          color: '#003366'
+        }}>
+          WebSocket
+        </TouchBarBtn>
         {isLoggedIn ? (
           <TouchBarBtn component={Link} to="/logout" variant="text" size="large" color="primary" sx={{
             fontFamily: '"Baloo 2", cursive',

@@ -4,6 +4,7 @@ import NavBar from './components/NavBar/NavBar'
 import TemplatePage from './components/TemplatePage/TemplatePage'
 import GamePage from './components/GamePage/GamePage'
 import ProfilePage from './components/ProfilePage/DesktopProfilePage'
+import WebSocketTest from './components/WebSocketTest/WebSocketTest'
 /**  TODO: set loggin*/
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 
@@ -19,6 +20,7 @@ function App() {
             <Route path="/nav1" element={<TemplatePage />} />
             <Route path="/game_page" element={<GamePage />} />
             <Route path="/profilePage" element={<ProfilePage />} />
+            <Route path="/websocket" element={<WebSocketTest />} />
             <Route path="/login" element={<GamePage />} /> {/**  TODO: set loggin: GamePage -> xxxPage*/}
             <Route path="/logout" element={<GamePage />} /> {/**  TODO: set loggin*/}
           </Routes>
