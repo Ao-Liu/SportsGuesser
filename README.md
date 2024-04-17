@@ -8,15 +8,18 @@ In the project directory, the following commands are available:
 ### npm i
 Installs all dependencies specified in the package.json file.
 
+### npm install @mui/icons-material
+install Material-UI package
+
+### npm install firebase
+install firebase to run Google login/out
+
 ### npm start
 Runs the app in the development mode.
 Open http://localhost:3000 to view it in your browser.
 
 The page will reload when you make changes.
 You may also see any lint errors in the console.
-
-### npm install @mui/icons-material
-install Material-UI package
 
 ### npm run build 
 DO NOT use unless the web-app is ready to be deployed.
