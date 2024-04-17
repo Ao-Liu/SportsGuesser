@@ -2,7 +2,10 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/user');
 
-router.post('/', async (req, res) => { // registers a user
+/**
+ * Registers a user.
+ */
+router.post('/', async (req, res) => {
     const user = new User({
         uid: req.body.uid,
         numGamesCompleted: req.body.numGamesCompleted || 0,
@@ -16,7 +19,10 @@ router.post('/', async (req, res) => { // registers a user
     }
 });
 
-router.get('/:uid', async (req, res) => { // retrieves a user by uid
+/**
+ * Retrieves a user by uid.
+ */
+router.get('/:uid', async (req, res) => {
     const { uid } = req.params;
 
     try {
@@ -30,7 +36,10 @@ router.get('/:uid', async (req, res) => { // retrieves a user by uid
     }
 });
 
-router.put('/update-completed/:uid', async (req, res) => { // updates # of games completed
+/**
+ * Updates # of games completed.
+ */
+router.put('/update-completed/:uid', async (req, res) => {
     const { uid } = req.params;
     const { numGamesCompleted } = req.body;
     try {
@@ -48,7 +57,10 @@ router.put('/update-completed/:uid', async (req, res) => { // updates # of games
     }
 });
 
-router.put('/update-won/:uid', async (req, res) => { // updates # of games won
+/**
+ * Updates # of games won.
+ */
+router.put('/update-won/:uid', async (req, res) => {
     const { uid } = req.params;
     const { numGamesWon } = req.body;
     try {
