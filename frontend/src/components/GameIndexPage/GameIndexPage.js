@@ -9,7 +9,6 @@ import { Typography } from "@mui/material";
  */
 const GameIndexPage = () => {
   const [socket, setSocket] = useState(null);
-  const [numOfPlayers, setNumOfPlayers] = useState("");
   const [numOfLevels, setNumOfLevels] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [response, setResponse] = useState("");
@@ -31,7 +30,6 @@ const GameIndexPage = () => {
   const createRoom = () => {
     if (socket) {
       socket.emit("createRoom", {
-        numOfPlayers: numOfPlayers,
         numOfLevels: numOfLevels,
         userId: dummyUserID,
       });
@@ -84,12 +82,6 @@ const GameIndexPage = () => {
       <Typography style={textStyle}>
         Create a Game Room
       </Typography>
-      <input
-        value={numOfPlayers}
-        onChange={(e) => setNumOfPlayers(e.target.value)}
-        type="number"
-        placeholder="Number of Players"
-      />
       <input
         value={numOfLevels}
         onChange={(e) => setNumOfLevels(e.target.value)}

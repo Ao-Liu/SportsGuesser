@@ -57,12 +57,11 @@ io.on("connection", (socket) => {
   socket.on("createRoom", async (data) => {
     try {
       console.log(data);
-      if (!data.numOfPlayers || !data.numOfLevels) {
+      if (!data.numOfLevels) {
         throw new Error("Required field missing");
       }
       const inviteCode = await generateUniqueCode();
       const newRoom = new GameRoom({
-        numOfPlayers: Number(data.numOfPlayers),
         numOfLevels: Number(data.numOfLevels),
         inviteCode: inviteCode,
         players: [data.userId],

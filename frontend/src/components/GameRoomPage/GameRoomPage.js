@@ -38,7 +38,7 @@ const GameRoomPage = () => {
       socket.on("gameStarted", (data) => {
         console.log("Game has started!");
         alert("Game has started!");
-        navigate(`/game/${roomId}/play`);
+        navigate(`/game/${roomId}/play`, { state: { level: data.level, coords: data.coords } });
       });
       socket.on("roomDetailsError", (errorMsg) => {
         setError(errorMsg);
