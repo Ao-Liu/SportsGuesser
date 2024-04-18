@@ -14,4 +14,15 @@ async function generateUniqueCode() {
   }
 }
 
-module.exports = { generateUniqueCode };
+/**
+ * Generates a random coordinate.
+ * Tentative.
+ */
+function generateRandomCoords() {
+  return {
+      lat: (Math.random() * 180 - 90).toFixed(2),
+      lng: (Math.random() * 360 - 180).toFixed(2)
+  };
+}
+
+module.exports = { generateUniqueCode, generateRandomCoords };

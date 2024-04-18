@@ -6,7 +6,7 @@ var cors = require("cors");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const GameRoom = require("./models/gameRoom");
-const { generateUniqueCode } = require("./utils");
+const { generateUniqueCode, generateRandomCoords } = require("./utils");
 
 const API_PORT = 3001;
 const app = express();
@@ -98,6 +98,41 @@ io.on("connection", (socket) => {
     } catch (err) {
       console.error("Error joining room:", err);
       socket.emit("error", "Error joining room");
+    }
+  });
+
+  socket.on("getRoomDetails", async (roomId) => {
+    try {
+      const room = await GameRoom.findById(roomId);
+      if (!room) {
+        socket.emit("roomDetailsError", "Room not found");
+        return;
+      }
+      console.log(room);
+      socket.emit("roomDetails", room);
+    } catch (err) {
+      console.error("Error fetching room details:", err);
+      socket.emit("roomDetailsError", "Failed to fetch room details");
+    }
+  });
+
+  socket.on("startGame", async (data) => {
+    const room = await GameRoom.findById(data.roomId);
+    if (!room) {
+      socket.emit("error", "Room not found");
+      return;
+    }
+    if (room.players[0] == socket.id) {
+      room.gameStarted = true;
+      room.currentLevel += 1;
+      room.currentCoords = generateRandomCoords(); // TODO: change this
+      await room.save();
+      io.to(data.roomId).emit("gameStarted", {
+        level: room.currentLevel,
+        coords: room.currentCoords,
+      });
+    } else {
+      socket.emit("error", "Only the room creator can start the game.");
     }
   });
 

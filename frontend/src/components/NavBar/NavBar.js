@@ -20,14 +20,14 @@ const Navbar = ({ isLoggedIn, handleLoginLogout }) => {
           fontSize: '30px', 
           color: '#003366'
         }}>
-          Game
+          Profile
         </TouchBarBtn>
-        <TouchBarBtn component={Link} to="/websocket" variant="text" size="large" color="primary" sx={{ 
+        <TouchBarBtn component={Link} to="/game" variant="text" size="large" color="primary" sx={{ 
           fontFamily: '"Baloo 2", cursive', 
           fontSize: '30px', 
           color: '#003366'
         }}>
-          WebSocket
+          Game
         </TouchBarBtn>
         {isLoggedIn ? (
           <TouchBarBtn component={Link} to="/logout" variant="text" size="large" color="primary" sx={{
