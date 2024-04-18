@@ -44,7 +44,7 @@ const GameRoomPage = () => {
   };
 
   const textStyle = {
-    color: "#7B68EE", // Medium slate blue
+    color: "#7B68EE",
     fontFamily: '"Baloo 2", cursive',
     fontWeight: "bold",
     fontSize: "30px",

@@ -67,30 +67,21 @@ const GameIndexPage = () => {
       socket.on("error", (error) => {
         setResponse(`Error: ${error}`);
       });
-      /**
-       * Handles starting a game.
-       */
-      socket.on("gameStarted", (data) => {
-        console.log("Game has started!");
-        console.log("Level:", data.level);
-        console.log("Coordinates:", data.coords.lat, data.coords.lng);
-      });
     }
   }, [socket]);
 
+  const textStyle = {
+    color: "#7B68EE",
+    fontFamily: '"Baloo 2", cursive',
+    fontWeight: "bold",
+    fontSize: "30px",
+    textAlign: "center",
+    margin: "20px 0",
+  };
+
   return (
     <div>
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{
-          color: "#7B68EE",
-          fontFamily: '"Baloo 2", cursive',
-          fontWeight: "bold",
-          fontSize: "30px",
-          margin: "20px 0",
-        }}
-      >
+      <Typography style={textStyle}>
         Create a Game Room
       </Typography>
       <input
@@ -107,30 +98,10 @@ const GameIndexPage = () => {
       />
       <button onClick={createRoom}>Create Room</button>
 
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{
-          color: "#7B68EE",
-          fontFamily: '"Baloo 2", cursive',
-          fontWeight: "bold",
-          fontSize: "30px",
-          margin: "20px 0",
-        }}
-      >
+      <Typography style={textStyle}>
         OR
       </Typography>
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{
-          color: "#7B68EE",
-          fontFamily: '"Baloo 2", cursive',
-          fontWeight: "bold",
-          fontSize: "30px",
-          margin: "20px 0",
-        }}
-      >
+      <Typography style={textStyle}>
         Join a Game Room
       </Typography>
       <input
@@ -140,17 +111,7 @@ const GameIndexPage = () => {
         placeholder="Enter Invite Code"
       />
       <button onClick={joinRoom}>Join Room</button>
-      <Typography
-        variant="h4"
-        align="center"
-        sx={{
-          color: "#7B68EE",
-          fontFamily: '"Baloo 2", cursive',
-          fontWeight: "bold",
-          fontSize: "30px",
-          margin: "20px 0",
-        }}
-      >
+      <Typography style={textStyle}>
         {response}
       </Typography>
     </div>
