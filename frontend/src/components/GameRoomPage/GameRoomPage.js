@@ -32,14 +32,19 @@ const GameRoomPage = () => {
       });
       socket.on("gameStarted", (data) => {
         alert("Game has started!");
-        // Additional logic for when the game starts
+        navigate(`/game/${roomId}/play`);
       });
     }
-  }, [socket, roomId]);
+  }, [socket, roomId, navigate]);
 
   const startGame = () => {
     if (socket) {
+      console.log("1111111111111");
       socket.emit("startGame", { roomId });
+      socket.on("gameStarted", (data) => {
+        alert("Game has started!");
+        navigate(`/game/${roomId}/play`);
+      });
     }
   };
 
@@ -72,9 +77,7 @@ const GameRoomPage = () => {
               ))}
           </ul>
           {roomDetails.players?.[0] === dummyUserID && (
-            <button onClick={() => socket.emit("startGame", { roomId })}>
-              Start Game
-            </button>
+            <button onClick={startGame}>Start Game</button>
           )}
         </>
       )}

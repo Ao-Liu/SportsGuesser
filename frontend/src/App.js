@@ -2,7 +2,7 @@ import './App.css'
 import HomePage from './components/HomePage/HomePage'
 import NavBar from './components/NavBar/NavBar'
 import TemplatePage from './components/TemplatePage/TemplatePage'
-import GamePage from './components/GamePage/GamePage'
+import GamePlayPage from './components/GamePlayPage/GamePlayPage'
 import ProfilePage from './components/ProfilePage/DesktopProfilePage'
 import GameIndexPage from './components/GameIndexPage/GameIndexPage'
 import GameRoomPage from './components/GameRoomPage/GameRoomPage'
@@ -19,12 +19,13 @@ function App() {
           <Routes>
             <Route exact path="/" element={<HomePage />} />
             <Route path="/nav1" element={<TemplatePage />} />
-            <Route path="/game_page" element={<GamePage />} />
+            {/* <Route path="/game_page" element={<GamePage />} /> */}
             <Route path="/profilePage" element={<ProfilePage />} />
-            <Route path="/login" element={<GamePage />} /> {/**  TODO: set loggin: GamePage -> xxxPage*/}
-            <Route path="/logout" element={<GamePage />} /> {/**  TODO: set loggin*/}
+            <Route path="/login" element={<GamePlayPage />} /> {/**  TODO: set loggin: GamePage -> xxxPage*/}
+            <Route path="/logout" element={<GamePlayPage />} /> {/**  TODO: set loggin*/}
             <Route path="/game" element={<GameIndexPage />} />
             <Route path="/game/:roomId" element={<GameRoomPage />} />
+            <Route path="/game/:roomId/play" element={<GamePlayPage />} />
           </Routes>
         </header>
       </BrowserRouter>

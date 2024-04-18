@@ -1,7 +1,7 @@
 import React from 'react'
 import { Typography } from '@mui/material'
 
-const GamePage = () => {
+const GamePlayPage = () => {
   const typoStyle = {
     color: '#424240',
     fontFamily: 'Monospace',
@@ -17,4 +17,4 @@ const GamePage = () => {
   )
 }
 
-export default GamePage
+export default GamePlayPage
