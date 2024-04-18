@@ -22,29 +22,37 @@ const GameRoomPage = () => {
 
   useEffect(() => {
     if (socket) {
+      /**
+       * Fetches room details from backend.
+       */
       socket.emit("getRoomDetails", roomId);
+      /**
+       * Processes room details.
+       */
       socket.on("roomDetails", (room) => {
-        console.log(room);
         setRoomDetails(room);
+      });
+      /**
+       * Listens to starting game.
+       */
+      socket.on("gameStarted", (data) => {
+        console.log("Game has started!");
+        alert("Game has started!");
+        navigate(`/game/${roomId}/play`);
       });
       socket.on("roomDetailsError", (errorMsg) => {
         setError(errorMsg);
       });
-      socket.on("gameStarted", (data) => {
-        alert("Game has started!");
-        navigate(`/game/${roomId}/play`);
-      });
     }
   }, [socket, roomId, navigate]);
 
+  /**
+   * Starts a game.
+   */
   const startGame = () => {
     if (socket) {
-      console.log("1111111111111");
+      console.log("Attempting to start game...");
       socket.emit("startGame", { roomId });
-      socket.on("gameStarted", (data) => {
-        alert("Game has started!");
-        navigate(`/game/${roomId}/play`);
-      });
     }
   };
 

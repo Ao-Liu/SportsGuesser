@@ -93,7 +93,7 @@ io.on("connection", (socket) => {
         room.players.push(userId);
         await room.save();
       }
-      socket.join(room._id.toString());
+      socket.join(data.roomId);
       socket.emit("joinedRoom", room);
     } catch (err) {
       console.error("Error joining room:", err);
@@ -101,6 +101,9 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Handles fetching room details.
+   */
   socket.on("getRoomDetails", async (roomId) => {
     try {
       const room = await GameRoom.findById(roomId);
@@ -108,7 +111,6 @@ io.on("connection", (socket) => {
         socket.emit("roomDetailsError", "Room not found");
         return;
       }
-      console.log(room);
       socket.emit("roomDetails", room);
     } catch (err) {
       console.error("Error fetching room details:", err);
@@ -116,24 +118,24 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Starts a game.
+   */
   socket.on("startGame", async (data) => {
     const room = await GameRoom.findById(data.roomId);
     if (!room) {
       socket.emit("error", "Room not found");
       return;
     }
-    if (room.players[0] == socket.id) {
-      room.gameStarted = true;
-      room.currentLevel += 1;
-      room.currentCoords = generateRandomCoords(); // TODO: change this
-      await room.save();
-      io.to(data.roomId).emit("gameStarted", {
-        level: room.currentLevel,
-        coords: room.currentCoords,
-      });
-    } else {
-      socket.emit("error", "Only the room creator can start the game.");
-    }
+    socket.join(data.roomId);
+    room.gameStarted = true;
+    room.currentLevel += 1;
+    room.currentCoords = generateRandomCoords(); // TODO: change this
+    await room.save();
+    io.to(data.roomId).emit("gameStarted", {
+      level: room.currentLevel,
+      coords: room.currentCoords,
+    });
   });
 
   socket.on("disconnect", () => {
