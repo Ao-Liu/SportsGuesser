@@ -6,7 +6,7 @@ var cors = require("cors");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const GameRoom = require("./models/gameRoom");
-const { generateUniqueCode, generateRandomCoords } = require("./utils");
+const { generateUniqueCode, generateRandomCoords, calculateAndRankResults } = require("./utils");
 
 const API_PORT = 3001;
 const app = express();
@@ -57,12 +57,11 @@ io.on("connection", (socket) => {
   socket.on("createRoom", async (data) => {
     try {
       console.log(data);
-      if (!data.numOfPlayers || !data.numOfLevels) {
+      if (!data.numOfLevels) {
         throw new Error("Required field missing");
       }
       const inviteCode = await generateUniqueCode();
       const newRoom = new GameRoom({
-        numOfPlayers: Number(data.numOfPlayers),
         numOfLevels: Number(data.numOfLevels),
         inviteCode: inviteCode,
         players: [data.userId],
@@ -89,11 +88,15 @@ io.on("connection", (socket) => {
         socket.emit("error", "Room not found");
         return;
       }
+      if (room.gameStarted) { // users should not join a game room if it has started.
+        socket.emit("gameStarted");
+        return;
+      }
       if (!room.players.includes(userId)) {
         room.players.push(userId);
         await room.save();
       }
-      socket.join(room._id.toString());
+      socket.join(data.roomId);
       socket.emit("joinedRoom", room);
     } catch (err) {
       console.error("Error joining room:", err);
@@ -101,6 +104,9 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Handles fetching room details.
+   */
   socket.on("getRoomDetails", async (roomId) => {
     try {
       const room = await GameRoom.findById(roomId);
@@ -108,7 +114,6 @@ io.on("connection", (socket) => {
         socket.emit("roomDetailsError", "Room not found");
         return;
       }
-      console.log(room);
       socket.emit("roomDetails", room);
     } catch (err) {
       console.error("Error fetching room details:", err);
@@ -116,23 +121,129 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Starts a game.
+   */
   socket.on("startGame", async (data) => {
     const room = await GameRoom.findById(data.roomId);
     if (!room) {
       socket.emit("error", "Room not found");
       return;
     }
-    if (room.players[0] == socket.id) {
-      room.gameStarted = true;
-      room.currentLevel += 1;
+    socket.join(data.roomId);
+    room.gameStarted = true;
+    room.currentCoords = generateRandomCoords(); // TODO: change this
+    await room.save();
+    io.to(data.roomId).emit("gameStarted", {
+      level: room.currentLevel,
+      coords: room.currentCoords,
+    });
+  });
+
+  /**
+   * Fetches current level info.
+   */
+  socket.on("getLevelInfo", async ({ roomId }) => {
+    try {
+      const room = await GameRoom.findById(roomId);
+      if (!room) {
+        console.log("Room not found.");
+        socket.emit("levelInfoError", "Room not found");
+        return;
+      }
+      socket.join(roomId);
       room.currentCoords = generateRandomCoords(); // TODO: change this
       await room.save();
-      io.to(data.roomId).emit("gameStarted", {
+      io.to(roomId).emit("levelInfoFetched", {
         level: room.currentLevel,
         coords: room.currentCoords,
       });
-    } else {
-      socket.emit("error", "Only the room creator can start the game.");
+    } catch (err) {
+      console.error("Error fetching level information:", err);
+      socket.emit("levelInfoError", "Error fetching level information");
+    }
+  });
+
+  /**
+   * Goes to the next level.
+   */
+  socket.on("nextLevel", async ({ roomId, currentLevel }) => {
+    try {
+      const room = await GameRoom.findById(roomId);
+      if (room) {
+        if (room.numOfLevels == currentLevel) {
+          socket.join(roomId);
+          socket.emit("gameEnded");
+        } else {
+          const nextLevel = currentLevel + 1;
+          room.currentLevel = nextLevel;
+          await room.save();
+          socket.join(roomId);
+          room.currentCoords = generateRandomCoords(); // TODO: change this
+          socket.emit("newLevelInfo", {
+            level: room.currentLevel,
+            coords: room.currentCoords,
+          });
+        }
+      } else {
+        socket.emit("error", "Room not found");
+      }
+    } catch (err) {
+      console.error("Error updating level:", err);
+      socket.emit("error", "Failed to update level");
+    }
+  });
+
+  /**
+   * Records answer for each step.
+   */
+  socket.on("submitGuess", async ({ roomId, uid, level, distance }) => {
+    console.log(
+      `Received guess from player ${uid} for level ${level}: ${distance}`
+    );
+    try {
+      const room = await GameRoom.findById(roomId);
+      if (!room) {
+        console.log("Room not found.");
+        socket.emit("error", "Room not found");
+        return;
+      }
+      room.answers.push({
+        uid,
+        level,
+        distance,
+      });
+      await room.save();
+      const expectedAnswers = room.players.length * room.currentLevel;
+      const receivedAnswers = room.answers.length;
+      console.log(
+        `Expect ${expectedAnswers} answers to continue to the next level, got ${receivedAnswers} answers`
+      );
+      if (receivedAnswers >= expectedAnswers) {
+        socket.join(roomId);
+        io.to(roomId).emit("levelCompleted", {
+          level,
+          message: "All answers received for level " + level,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to record guess:", err);
+      socket.emit("error", "Failed to record your guess");
+    }
+  });
+
+  /**
+   * Generates results after a game ends.
+   */
+  socket.on("getResults", async ({ roomId }) => {
+    try {
+      let results = await calculateAndRankResults(roomId);
+      console.log(results);
+      socket.join(roomId);
+      io.to(roomId).emit("results", results);
+    } catch (err) {
+      console.error("Failed to get results:", err);
+      socket.emit("error", "Failed to fetch results");
     }
   });
 

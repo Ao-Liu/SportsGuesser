@@ -9,7 +9,7 @@ const { generateUniqueCode } = require('../utils');
  */
 router.post('/create', async (req, res) => {
     try {
-        const { numOfPlayers, numOfLevels, players } = req.body;
+        const { numOfLevels, players } = req.body;
         const inviteCode = await generateUniqueCode(); 
         const newGameRoom = new GameRoom({
             numOfPlayers,

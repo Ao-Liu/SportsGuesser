@@ -25,4 +25,36 @@ function generateRandomCoords() {
   };
 }
 
-module.exports = { generateUniqueCode, generateRandomCoords };
+/**
+ * Generates game results.
+ * e.g. [ { uid: '12345', totalDistance: 15 } ]
+ */
+async function calculateAndRankResults(roomId) {
+  try {
+      const room = await GameRoom.findById(roomId);
+      if (!room) {
+          return { error: 'Room not found' };
+      }
+      const answers = room.answers; 
+      const distanceSumByUid = {};
+      answers.forEach(answer => {
+          if (distanceSumByUid[answer.uid]) {
+              distanceSumByUid[answer.uid] += answer.distance;
+          } else {
+              distanceSumByUid[answer.uid] = answer.distance;
+          }
+      });
+      const rankedResults = Object.keys(distanceSumByUid).map(uid => ({
+          uid: uid,
+          totalDistance: distanceSumByUid[uid]
+      }));
+      rankedResults.sort((a, b) => a.totalDistance - b.totalDistance);
+      return rankedResults;
+  } catch (err) {
+      console.error("Error calculating results:", err);
+      return { error: 'Error calculating results' };
+  }
+}
+
+
+module.exports = { generateUniqueCode, generateRandomCoords, calculateAndRankResults };

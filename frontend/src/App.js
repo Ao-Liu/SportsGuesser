@@ -9,6 +9,7 @@ import GameIndexPage from './components/GameIndexPage/GameIndexPage';
 import GameRoomPage from './components/GameRoomPage/GameRoomPage';
 import LoginPage from './components/LoginPage/LoginPage'; // Import LoginPage
 import LogoutPage from './components/LogoutPage/LogoutPage'; // Import LogoutPage
+import GameResultPage from './components/GameResultPage/GameResultPage'
 /**  TODO: set loggin*/
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 
@@ -34,6 +35,7 @@ function App() {
             <Route path="/game" element={<GameIndexPage />} />
             <Route path="/game/:roomId" element={<GameRoomPage />} />
             <Route path="/game/:roomId/play" element={<GamePlayPage />} />
+            <Route path="/game/:roomId/results" element={<GameResultPage />} />
           </Routes>
         </header>
       </BrowserRouter>

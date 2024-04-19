@@ -22,29 +22,37 @@ const GameRoomPage = () => {
 
   useEffect(() => {
     if (socket) {
+      /**
+       * Fetches room details from backend.
+       */
       socket.emit("getRoomDetails", roomId);
+      /**
+       * Processes room details.
+       */
       socket.on("roomDetails", (room) => {
-        console.log(room);
         setRoomDetails(room);
+      });
+      /**
+       * Listens to starting game.
+       */
+      socket.on("gameStarted", (data) => {
+        console.log("Game has started!");
+        alert("Game has started!");
+        navigate(`/game/${roomId}/play`, { state: { roomId: roomId, level: data.level, coords: data.coords } });
       });
       socket.on("roomDetailsError", (errorMsg) => {
         setError(errorMsg);
       });
-      socket.on("gameStarted", (data) => {
-        alert("Game has started!");
-        navigate(`/game/${roomId}/play`);
-      });
     }
   }, [socket, roomId, navigate]);
 
+  /**
+   * Starts a game.
+   */
   const startGame = () => {
     if (socket) {
-      console.log("1111111111111");
+      console.log("Attempting to start game...");
       socket.emit("startGame", { roomId });
-      socket.on("gameStarted", (data) => {
-        alert("Game has started!");
-        navigate(`/game/${roomId}/play`);
-      });
     }
   };
 
@@ -57,7 +65,7 @@ const GameRoomPage = () => {
     margin: "20px 0",
   };
 
-  let dummyUserID = "ABCD12345"; // TODO: replace this with signed in user info (firebase ID).
+  let dummyUserID = "1234"; // TODO: replace this with signed in user info (firebase ID).
 
   return (
     <div>
@@ -65,7 +73,6 @@ const GameRoomPage = () => {
       {error && <p style={textStyle}>Error: {error}</p>}
       {!error && roomDetails && (
         <>
-          <p style={textStyle}>Number of Players: {roomDetails.numOfPlayers}</p>
           <p style={textStyle}>Number of Levels: {roomDetails.numOfLevels}</p>
           <p style={textStyle}>Players:</p>
           <ul>
