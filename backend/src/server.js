@@ -6,7 +6,7 @@ var cors = require("cors");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const GameRoom = require("./models/gameRoom");
-const { generateUniqueCode, generateRandomCoords } = require("./utils");
+const { generateUniqueCode, generateRandomCoords, calculateAndRankResults } = require("./utils");
 
 const API_PORT = 3001;
 const app = express();
@@ -136,6 +136,9 @@ io.on("connection", (socket) => {
     });
   });
 
+  /**
+   * Fetches current level info.
+   */
   socket.on("getLevelInfo", async ({ roomId }) => {
     try {
       const room = await GameRoom.findById(roomId);
@@ -145,7 +148,6 @@ io.on("connection", (socket) => {
         return;
       }
       socket.join(roomId);
-      // room.currentLevel += 1;
       room.currentCoords = generateRandomCoords(); // TODO: change this
       await room.save();
       io.to(roomId).emit("levelInfoFetched", {
@@ -158,19 +160,27 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Goes to the next level.
+   */
   socket.on("nextLevel", async ({ roomId, currentLevel }) => {
     try {
       const room = await GameRoom.findById(roomId);
       if (room) {
-        const nextLevel = currentLevel + 1;
-        room.currentLevel = nextLevel;
-        await room.save();
-        socket.join(roomId);
-        room.currentCoords = generateRandomCoords(); // TODO: change this
-        socket.emit("newLevelInfo", {
-          level: room.currentLevel,
-          coords: room.currentCoords,
-        });
+        if (room.numOfLevels == currentLevel) {
+          socket.join(roomId);
+          socket.emit("gameEnded");
+        } else {
+          const nextLevel = currentLevel + 1;
+          room.currentLevel = nextLevel;
+          await room.save();
+          socket.join(roomId);
+          room.currentCoords = generateRandomCoords(); // TODO: change this
+          socket.emit("newLevelInfo", {
+            level: room.currentLevel,
+            coords: room.currentCoords,
+          });
+        }
       } else {
         socket.emit("error", "Room not found");
       }
@@ -201,11 +211,10 @@ io.on("connection", (socket) => {
       });
       await room.save();
       const expectedAnswers = room.players.length * room.currentLevel;
-      const receivedAnswers = room.answers.filter(
-        (ans) => ans.level === level
-      ).length;
-      console.log(expectedAnswers);
-      console.log(receivedAnswers);
+      const receivedAnswers = room.answers.length;
+      console.log(
+        `Expect ${expectedAnswers} answers to continue to the next level, got ${receivedAnswers} answers`
+      );
       if (receivedAnswers >= expectedAnswers) {
         socket.join(roomId);
         io.to(roomId).emit("levelCompleted", {
@@ -216,6 +225,18 @@ io.on("connection", (socket) => {
     } catch (err) {
       console.error("Failed to record guess:", err);
       socket.emit("error", "Failed to record your guess");
+    }
+  });
+
+  socket.on("getResults", async ({ roomId }) => {
+    try {
+      let results = await calculateAndRankResults(roomId);
+      console.log(results);
+      socket.join(roomId);
+      io.to(roomId).emit("results", results);
+    } catch (err) {
+      console.error("Failed to get results:", err);
+      socket.emit("error", "Failed to fetch results");
     }
   });
 

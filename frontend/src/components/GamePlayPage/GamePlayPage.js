@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
 const GamePlayPage = () => {
@@ -12,6 +13,7 @@ const GamePlayPage = () => {
   const [levelInfo, setLevelInfo] = useState(null);
   const [levelCompleted, setLevelCompleted] = useState(false);
   const [error, setError] = useState("");
+  const navigate = useNavigate();
 
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`);
@@ -25,13 +27,17 @@ const GamePlayPage = () => {
       setLevelCompleted(true);
       console.log("Level completed");
     });
-    newSocket.on("levelInfoError", (errorMsg) => {
-      setError(errorMsg);
-      console.error("Level info error:", errorMsg);
-    });
     newSocket.on("newLevelInfo", (data) => {
       setLevelInfo(data);
       console.log("Received new level info:", data);
+    });
+    newSocket.on("gameEnded", () => {
+      console.log("Game ended");
+      navigate(`/game/${roomId}/results`, { state: { roomId: roomId } });
+    });
+    newSocket.on("levelInfoError", (errorMsg) => {
+      setError(errorMsg);
+      console.error("Level info error:", errorMsg);
     });
     return () => {
       newSocket.off("levelInfo");

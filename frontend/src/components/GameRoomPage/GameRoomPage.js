@@ -73,7 +73,6 @@ const GameRoomPage = () => {
       {error && <p style={textStyle}>Error: {error}</p>}
       {!error && roomDetails && (
         <>
-          <p style={textStyle}>Number of Players: {roomDetails.numOfPlayers}</p>
           <p style={textStyle}>Number of Levels: {roomDetails.numOfLevels}</p>
           <p style={textStyle}>Players:</p>
           <ul>
