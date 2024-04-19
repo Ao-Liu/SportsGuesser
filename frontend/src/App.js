@@ -29,7 +29,7 @@ function App() {
             <Route exact path="/" element={<HomePage />} />
             <Route path="/nav1" element={<TemplatePage />} />
             <Route path="/game_page" element={<GamePlayPage />} />
-            <Route path="/profilePage" element={<ProfilePage />} />
+            <Route path="/users/:uid" element={<ProfilePage />} />
             <Route path="/login" element={<LoginPage isLoggedIn={isLoggedIn} handleLoginLogout={handleLoginLogout} />} />
             <Route path="/logout" element={<LogoutPage isLoggedIn={isLoggedIn} handleLoginLogout={handleLoginLogout} />} />
             <Route path="/game" element={<GameIndexPage />} />

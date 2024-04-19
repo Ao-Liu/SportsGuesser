@@ -19,22 +19,43 @@ router.post('/', async (req, res) => {
     }
 });
 
+
 /**
  * Retrieves a user by uid.
  */
 router.get('/:uid', async (req, res) => {
+    console.log("backend backend")
     const { uid } = req.params;
+    
+    ////////////// Temporary dummy data ////////////
+    const dummyUser = {
+        uid: 1,
+        displayName: "Scotty",
+        email: "scotty@gmail",
+        photoURL: "https://www.cmu.edu/brand/brand-guidelines/images/scottycrop2-600x600.png",
+        numGamesCompleted: 10,
+        numGamesWon: 2,
+        conqueredCourNameUrl: [
+            { name: 'Staples Center Lakers', url: 'https://c8.alamy.com/comp/AR6H8X/nba-la-lakers-staple-center-los-angeles-california-usa-AR6H8X.jpg' },
+            { name: 'Pittsburgh Penguins Hockey', url: 'https://www.discovertheburgh.com/wp-content/uploads/2018/04/20180411_200128-600px.jpg' },
+        ],
+    };
+    ////////////// Temporary dummy data ////////////
 
     try {
-        const user = await User.findOne({ uid: uid });
-        if (!user) {
-            return res.status(404).json({ message: "User not found." });
-        }
-        res.json(user);
+        // const user = await User.findOne({ uid: uid });
+        // if (!user) {
+        //     return res.status(404).json({ message: "User not found." });
+        // }
+        
+        // res.json(user);
+        res.json(dummyUser);
     } catch (err) {
         res.status(500).json({ message: err.message });
     }
 });
+
+
 
 /**
  * Updates # of games completed.
@@ -79,3 +100,4 @@ router.put('/update-won/:uid', async (req, res) => {
 });
 
 module.exports = router;
+
