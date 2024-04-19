@@ -38,7 +38,7 @@ const GameRoomPage = () => {
       socket.on("gameStarted", (data) => {
         console.log("Game has started!");
         alert("Game has started!");
-        navigate(`/game/${roomId}/play`, { state: { level: data.level, coords: data.coords } });
+        navigate(`/game/${roomId}/play`, { state: { roomId: roomId, level: data.level, coords: data.coords } });
       });
       socket.on("roomDetailsError", (errorMsg) => {
         setError(errorMsg);
@@ -65,7 +65,7 @@ const GameRoomPage = () => {
     margin: "20px 0",
   };
 
-  let dummyUserID = "ABCD12345"; // TODO: replace this with signed in user info (firebase ID).
+  let dummyUserID = "12345"; // TODO: replace this with signed in user info (firebase ID).
 
   return (
     <div>

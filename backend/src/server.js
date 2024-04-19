@@ -128,13 +128,95 @@ io.on("connection", (socket) => {
     }
     socket.join(data.roomId);
     room.gameStarted = true;
-    room.currentLevel += 1;
     room.currentCoords = generateRandomCoords(); // TODO: change this
     await room.save();
     io.to(data.roomId).emit("gameStarted", {
       level: room.currentLevel,
       coords: room.currentCoords,
     });
+  });
+
+  socket.on("getLevelInfo", async ({ roomId }) => {
+    try {
+      const room = await GameRoom.findById(roomId);
+      if (!room) {
+        console.log("Room not found.");
+        socket.emit("levelInfoError", "Room not found");
+        return;
+      }
+      socket.join(roomId);
+      // room.currentLevel += 1;
+      room.currentCoords = generateRandomCoords(); // TODO: change this
+      await room.save();
+      io.to(roomId).emit("levelInfoFetched", {
+        level: room.currentLevel,
+        coords: room.currentCoords,
+      });
+    } catch (err) {
+      console.error("Error fetching level information:", err);
+      socket.emit("levelInfoError", "Error fetching level information");
+    }
+  });
+
+  socket.on("nextLevel", async ({ roomId, currentLevel }) => {
+    try {
+      const room = await GameRoom.findById(roomId);
+      if (room) {
+        const nextLevel = currentLevel + 1;
+        room.currentLevel = nextLevel;
+        await room.save();
+        socket.join(roomId);
+        room.currentCoords = generateRandomCoords(); // TODO: change this
+        socket.emit("newLevelInfo", {
+          level: room.currentLevel,
+          coords: room.currentCoords,
+        });
+      } else {
+        socket.emit("error", "Room not found");
+      }
+    } catch (err) {
+      console.error("Error updating level:", err);
+      socket.emit("error", "Failed to update level");
+    }
+  });
+
+  /**
+   * Records answer for each step.
+   */
+  socket.on("submitGuess", async ({ roomId, uid, level, distance }) => {
+    console.log(
+      `Received guess from player ${uid} for level ${level}: ${distance}`
+    );
+    try {
+      const room = await GameRoom.findById(roomId);
+      if (!room) {
+        console.log("Room not found.");
+        socket.emit("error", "Room not found");
+        return;
+      }
+      room.answers.push({
+        uid,
+        level,
+        distance,
+      });
+      await room.save();
+      const expectedAnswers = room.players.length * room.currentLevel;
+      const receivedAnswers = room.answers.filter(
+        (ans) => ans.level === level
+      ).length;
+      console.log(expectedAnswers);
+      console.log(receivedAnswers);
+      if (receivedAnswers >= expectedAnswers) {
+        socket.join(roomId);
+        io.to(roomId).emit("levelCompleted", {
+          level,
+          message: "All answers received for level " + level,
+        });
+      }
+    } catch (err) {
+      console.error("Failed to record guess:", err);
+      socket.emit("error", "Failed to record your guess");
+    }
   });
 
   socket.on("disconnect", () => {

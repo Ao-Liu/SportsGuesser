@@ -25,7 +25,7 @@ const GameIndexPage = () => {
     return () => newSocket.close();
   }, []);
 
-  let dummyUserID = "ABCD"; // TODO: replace this with signed in user info (firebase ID).
+  let dummyUserID = "1234"; // TODO: replace this with signed in user info (firebase ID).
 
   const createRoom = () => {
     if (socket) {
