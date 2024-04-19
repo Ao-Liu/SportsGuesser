@@ -62,6 +62,11 @@ const GameIndexPage = () => {
         setResponse(`Joined Room: ${room._id}`);
         navigate(`/game/${room._id}`);
       });
+
+      socket.on("gameStarted", () => {
+        setResponse(`Cannot join room as game has already started.`);
+      });
+
       socket.on("error", (error) => {
         setResponse(`Error: ${error}`);
       });

@@ -25,6 +25,10 @@ function generateRandomCoords() {
   };
 }
 
+/**
+ * Generates game results.
+ * e.g. [ { uid: '12345', totalDistance: 15 } ]
+ */
 async function calculateAndRankResults(roomId) {
   try {
       const room = await GameRoom.findById(roomId);

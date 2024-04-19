@@ -65,7 +65,7 @@ const GameRoomPage = () => {
     margin: "20px 0",
   };
 
-  let dummyUserID = "12345"; // TODO: replace this with signed in user info (firebase ID).
+  let dummyUserID = "1234"; // TODO: replace this with signed in user info (firebase ID).
 
   return (
     <div>

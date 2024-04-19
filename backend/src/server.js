@@ -88,6 +88,10 @@ io.on("connection", (socket) => {
         socket.emit("error", "Room not found");
         return;
       }
+      if (room.gameStarted) { // users should not join a game room if it has started.
+        socket.emit("gameStarted");
+        return;
+      }
       if (!room.players.includes(userId)) {
         room.players.push(userId);
         await room.save();
@@ -228,6 +232,9 @@ io.on("connection", (socket) => {
     }
   });
 
+  /**
+   * Generates results after a game ends.
+   */
   socket.on("getResults", async ({ roomId }) => {
     try {
       let results = await calculateAndRankResults(roomId);

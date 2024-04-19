@@ -80,6 +80,8 @@ const GamePlayPage = () => {
         roomId,
         currentLevel: levelInfo.level,
       });
+      setHasSubmitted(false);
+      setLevelCompleted(false);
     }
   };
 
