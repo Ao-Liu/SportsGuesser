@@ -16,6 +16,8 @@ const GamePlayPage = () => {
   const navigate = useNavigate();
   const mapRef = useRef(null);
   const userMarkerRef = useRef(null);
+  const correctMarkerRef = useRef(null);
+  const polylineRef = useRef(null);
 
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`);
@@ -87,6 +89,18 @@ const GamePlayPage = () => {
     userMarkerRef.current = marker;
   };
 
+  const placeCorrectMarker = (location, map) => {
+    if (correctMarkerRef.current) {
+      correctMarkerRef.current.setMap(null); // Remove the previous marker
+    }
+    const marker = new window.google.maps.Marker({
+      position: location,
+      map: map,
+      icon: "http://maps.google.com/mapfiles/ms/icons/green-dot.png"
+    });
+    correctMarkerRef.current = marker;
+  };
+
   const textStyle = {
     color: "#7B68EE",
     fontFamily: '"Baloo 2", cursive',
@@ -96,14 +110,33 @@ const GamePlayPage = () => {
     margin: "20px 0",
   };
 
+  const drawPolyline = (playerLocation, correctLocation, map) => {
+    if (polylineRef.current) {
+      polylineRef.current.setMap(null);
+    }
+    const polyline = new window.google.maps.Polyline({
+      path: [playerLocation, correctLocation],
+      strokeColor: '#FF0000',
+      strokeOpacity: 1.0,
+      strokeWeight: 3,
+      map: map
+    });
+    polylineRef.current = polyline;
+    console.log("ha")
+  };
+
   let dummyUserID = "12345"; // TODO: replace this with signed in user info (firebase ID).
 
   const handleSubmit = () => {
     if (socket && playerLat && playerLng && levelInfo?.coords) {
       const playerLocation = new window.google.maps.LatLng(playerLat, playerLng);
-      const correctLocation = new window.google.maps.LatLng(levelInfo.coords?.lat, levelInfo.coords?.lng);
+      const correctLocation = new window.google.maps.LatLng(levelInfo.coords.lat, levelInfo.coords.lng);
       const distance = window.google.maps.geometry.spherical.computeDistanceBetween(playerLocation, correctLocation) / 1000; // distance in kilometers
-
+      console.log(levelInfo.coords)
+      
+      placeCorrectMarker(levelInfo.coords, mapRef.current); // FIXME the correct marker don't show up
+      drawPolyline(playerLocation, correctLocation, mapRef.current); // FIXME the line don't show up
+      
       socket.emit("submitGuess", {
         roomId,
         uid: dummyUserID,
