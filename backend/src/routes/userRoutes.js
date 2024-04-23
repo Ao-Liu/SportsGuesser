@@ -66,21 +66,6 @@ router.get('/:uid', async (req, res) => {
     console.log("backend backend looking for Uid: ", req.params.uid)
     const { uid } = req.params;
 
-    ////////// Temporary dummy data ////////////
-    // const dummyUser = {
-    //     uid: 1,
-    //     displayName: "Scotty",
-    //     email: "scotty@gmail",
-    //     photoURL: "https://www.cmu.edu/brand/brand-guidelines/images/scottycrop2-600x600.png",
-    //     numGamesCompleted: 10,
-    //     numGamesWon: 2,
-    //     conqueredCourNameUrl: [
-    //         { name: 'Staples Center Lakers', url: 'https://c8.alamy.com/comp/AR6H8X/nba-la-lakers-staple-center-los-angeles-california-usa-AR6H8X.jpg' },
-    //         { name: 'Pittsburgh Penguins Hockey', url: 'https://www.discovertheburgh.com/wp-content/uploads/2018/04/20180411_200128-600px.jpg' },
-    //     ],
-    // };
-    ////////// Temporary dummy data ////////////
-
     try {
         // console.log("looking for uid: ", uid)
         const user = await User.findOne({ uid: uid });
