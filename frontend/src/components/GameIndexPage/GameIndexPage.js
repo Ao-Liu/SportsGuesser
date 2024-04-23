@@ -3,6 +3,9 @@ import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import { Typography } from "@mui/material";
 
+
+import { auth } from '../LogoutPage/firebase-config.js';
+
 /**
  * For backend testing purposes.
  * Subject to change.
@@ -12,6 +15,7 @@ const GameIndexPage = () => {
   const [numOfLevels, setNumOfLevels] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [response, setResponse] = useState("");
+ 
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,13 +29,23 @@ const GameIndexPage = () => {
     return () => newSocket.close();
   }, []);
 
-  let dummyUserID = "1234"; // TODO: replace this with signed in user info (firebase ID).
+  ////////////// prompt for login user ////////////////////
+  const [loginUser, setLoginUser] = useState(null);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setLoginUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+  ////////////// prompt for login user /////////////////////
+  const loginUserID = loginUser ? loginUser.uid : navigate(`/login`); // TODO: replace this with signed in user info (firebase ID).
+
 
   const createRoom = () => {
     if (socket) {
       socket.emit("createRoom", {
         numOfLevels: numOfLevels,
-        userId: dummyUserID,
+        userId: loginUserID,
       });
     }
   };
@@ -40,7 +54,7 @@ const GameIndexPage = () => {
     if (socket && inviteCode) {
       socket.emit("joinRoom", {
         inviteCode: inviteCode,
-        userId: dummyUserID,
+        userId: loginUserID,
       });
     }
   };

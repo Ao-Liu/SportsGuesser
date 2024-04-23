@@ -3,6 +3,8 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
+import { auth } from '../LogoutPage/firebase-config.js';
+
 const GamePlayPage = () => {
   const location = useLocation();
   const { roomId } = location.state || {};
@@ -124,8 +126,21 @@ const GamePlayPage = () => {
     polylineRef.current = polyline;
     console.log("ha")
   };
+  
+  
+  ////////////// prompt for login user ////////////////////
+  const [loginUser, setLoginUser] = useState(null);
+  useEffect(() => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      setLoginUser(user);
+    });
+    return () => unsubscribe();
+  }, []);
+  ////////////// prompt for login user /////////////////////
+  const loginUserID = loginUser ? loginUser.uid : navigate(`/login`); // TODO: replace this with signed in user info (firebase ID).
 
-  let dummyUserID = "12345"; // TODO: replace this with signed in user info (firebase ID).
+ 
+  
 
   const handleSubmit = () => {
     if (socket && playerLat && playerLng && levelInfo?.coords) {
@@ -139,7 +154,7 @@ const GamePlayPage = () => {
       
       socket.emit("submitGuess", {
         roomId,
-        uid: dummyUserID,
+        uid: loginUserID,
         level: levelInfo.level,
         distance: distance,
       });
