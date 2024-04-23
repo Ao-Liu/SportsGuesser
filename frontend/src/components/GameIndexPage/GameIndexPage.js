@@ -15,7 +15,7 @@ const GameIndexPage = () => {
   const [numOfLevels, setNumOfLevels] = useState("");
   const [inviteCode, setInviteCode] = useState("");
   const [response, setResponse] = useState("");
- 
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -29,17 +29,39 @@ const GameIndexPage = () => {
     return () => newSocket.close();
   }, []);
 
-  ////////////// prompt for login user ////////////////////
+  // ////////////// prompt for login user ////////////////////
+  // const [loginUser, setLoginUser] = useState(null);
+  // useEffect(() => {
+  //   const unsubscribe = auth.onAuthStateChanged(user => {
+  //     setLoginUser(user);
+  //   });
+
+  //   return () => unsubscribe();
+  // }, []);
+  // ////////////// prompt for login user /////////////////////
+
+  // const loginUserID = loginUser ? loginUser.uid : navigate(`/login`); // TODO: replace this with signed in user info (firebase ID).
+  // Function to fetch user display name by UID
+
   const [loginUser, setLoginUser] = useState(null);
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged(user => {
-      setLoginUser(user);
-    });
-    return () => unsubscribe();
-  }, []);
-  ////////////// prompt for login user /////////////////////
-  const loginUserID = loginUser ? loginUser.uid : navigate(`/login`); // TODO: replace this with signed in user info (firebase ID).
+    const fetchLoginUser = async () => {
+      try {
+        const user = await auth.currentUser;
+        if (user) {
+          setLoginUser(user);
+        } else {
+          navigate(`/login`);
+        }
+      } catch (error) {
+        console.error("Error fetching login user:", error);
+        navigate(`/`);
+      }
+    };
+    fetchLoginUser();
+  }, [navigate]);
 
+  const loginUserID = loginUser ? loginUser.uid : null;
 
   const createRoom = () => {
     if (socket) {
