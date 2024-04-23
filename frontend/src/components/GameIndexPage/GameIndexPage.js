@@ -29,20 +29,6 @@ const GameIndexPage = () => {
     return () => newSocket.close();
   }, []);
 
-  // ////////////// prompt for login user ////////////////////
-  // const [loginUser, setLoginUser] = useState(null);
-  // useEffect(() => {
-  //   const unsubscribe = auth.onAuthStateChanged(user => {
-  //     setLoginUser(user);
-  //   });
-
-  //   return () => unsubscribe();
-  // }, []);
-  // ////////////// prompt for login user /////////////////////
-
-  // const loginUserID = loginUser ? loginUser.uid : navigate(`/login`); // TODO: replace this with signed in user info (firebase ID).
-  // Function to fetch user display name by UID
-
   const [loginUser, setLoginUser] = useState(null);
   useEffect(() => {
     const fetchLoginUser = async () => {
