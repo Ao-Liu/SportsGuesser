@@ -100,7 +100,7 @@ const sendUserDataToServer = (user, idToken) => {
     // ],
   };
   const url = BACKEND_ENDPOINT + '/users/create';
-  console.log("url url url" , url)
+  // console.log("url url url" , url)
   fetch(url, {
     method: 'POST',
     headers: {
