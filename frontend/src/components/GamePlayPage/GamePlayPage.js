@@ -17,9 +17,45 @@ const GamePlayPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const mapRef = useRef(null);
+
   const userMarkerRef = useRef(null);
   const correctMarkerRef = useRef(null);
   const polylineRef = useRef(null);
+
+
+  const loadMap = () => {
+    if (!window.google) { // Check if the Google Maps API is already loaded
+      const script = document.createElement("script");
+      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCbwceX4lQH3QK5x3rbt_tKTHnM1864Bhw&callback=initMap&libraries=geometry`;
+      script.async = true;
+      script.defer = true;
+      script.onerror = () => console.error("Google Maps script failed to load.");
+      document.head.appendChild(script);
+    } else {
+      initMap(); // Call initMap directly if the Google Maps API is already loaded
+    }
+  };
+
+  const initMap = () => {
+    if (!mapRef.current || !(mapRef.current instanceof Node)) {
+      console.error("Error: Map container is not a valid DOM node.");
+      return;
+    }
+    const map = new window.google.maps.Map(mapRef.current, {
+      center: { lat: 0, lng: 0 },
+      zoom: 2,
+    });
+
+    map.addListener("click", (e) => {
+      const lat = e.latLng.lat();
+      const lng = e.latLng.lng();
+      setPlayerLat(lat);
+      setPlayerLng(lng);
+      placeMarker({ lat, lng }, map);
+    });
+    
+    mapRef.current = map;
+  };
 
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`);
@@ -46,15 +82,6 @@ const GamePlayPage = () => {
       console.error("Level info error:", errorMsg);
     });
 
-    const loadMap = () => {
-      const script = document.createElement("script");
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCbwceX4lQH3QK5x3rbt_tKTHnM1864Bhw&callback=initMap&libraries=geometry`;
-      script.async = true;
-      script.defer = true;
-      script.onerror = () => console.error("Google Maps script failed to load.");
-      document.head.appendChild(script);
-      window.initMap = initMap;
-    };
     loadMap();
 
     return () => {
@@ -64,20 +91,6 @@ const GamePlayPage = () => {
     };
   }, [roomId, navigate]);
 
-  const initMap = () => {
-    const map = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 0, lng: 0 },
-      zoom: 2,
-    });
-
-    map.addListener("click", (e) => {
-      const lat = e.latLng.lat();
-      const lng = e.latLng.lng();
-      setPlayerLat(lat);
-      setPlayerLng(lng);
-      placeMarker({ lat, lng }, map);
-    });
-  };
 
   const placeMarker = (location, map) => {
     if (userMarkerRef.current) {
@@ -118,7 +131,7 @@ const GamePlayPage = () => {
     }
     const polyline = new window.google.maps.Polyline({
       path: [playerLocation, correctLocation],
-      strokeColor: '#FF0000',
+      strokeColor: '#3b3b3b',
       strokeOpacity: 1.0,
       strokeWeight: 3,
       map: map
@@ -170,6 +183,7 @@ const GamePlayPage = () => {
         distance: distance,
       });
       setHasSubmitted(true);
+
     }
   };
 
@@ -188,7 +202,7 @@ const GamePlayPage = () => {
   return (
     <div>
       <h1 style={textStyle}>Game Level: {levelInfo?.level}</h1>
-      <div ref={mapRef} style={{ height: '600px', width: '600px' }}></div>
+      <div ref={mapRef} style={{ height: '600px', width: '600px', margin: 'auto'}}></div>
       {!hasSubmitted && (
         <div>
           <input
