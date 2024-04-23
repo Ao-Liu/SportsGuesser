@@ -22,17 +22,22 @@ const GamePlayPage = () => {
   const correctMarkerRef = useRef(null);
   const polylineRef = useRef(null);
 
+  const [isMapScriptLoaded, setIsMapScriptLoaded] = useState(false);
 
   const loadMap = () => {
-    if (!window.google) { // Check if the Google Maps API is already loaded
+    if (!window.google) {
       const script = document.createElement("script");
       script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCbwceX4lQH3QK5x3rbt_tKTHnM1864Bhw&callback=initMap&libraries=geometry`;
       script.async = true;
       script.defer = true;
-      script.onerror = () => console.error("Google Maps script failed to load.");
+      script.onload = () => setIsMapScriptLoaded(true);  // Set state when script is loaded
+      script.onerror = () => {
+        console.error("Google Maps script failed to load.");
+        setIsMapScriptLoaded(false);
+      };
       document.head.appendChild(script);
     } else {
-      initMap(); // Call initMap directly if the Google Maps API is already loaded
+      setIsMapScriptLoaded(true);
     }
   };
 
@@ -41,6 +46,8 @@ const GamePlayPage = () => {
       console.error("Error: Map container is not a valid DOM node.");
       return;
     }
+
+    // Initialize the map
     const map = new window.google.maps.Map(mapRef.current, {
       center: { lat: 0, lng: 0 },
       zoom: 2,
@@ -53,9 +60,15 @@ const GamePlayPage = () => {
       setPlayerLng(lng);
       placeMarker({ lat, lng }, map);
     });
-    
+
     mapRef.current = map;
   };
+
+  useEffect(() => {
+    if (isMapScriptLoaded && mapRef.current) {
+      initMap();
+    }
+  }, [isMapScriptLoaded]); // React only after the map script has loaded
 
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`);
@@ -202,7 +215,7 @@ const GamePlayPage = () => {
   return (
     <div>
       <h1 style={textStyle}>Game Level: {levelInfo?.level}</h1>
-      <div ref={mapRef} style={{ height: '600px', width: '600px', margin: 'auto'}}></div>
+      <div ref={mapRef} style={{ height: '600px', width: '600px', margin: 'auto' }}></div>
       {!hasSubmitted && (
         <div>
           <input
