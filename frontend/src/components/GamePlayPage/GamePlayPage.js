@@ -207,6 +207,9 @@ const GamePlayPage = () => {
         roomId,
         currentLevel: levelInfo.level,
       });
+      userMarkerRef.current.setMap(null);
+      correctMarkerRef.current.setMap(null);
+      polylineRef.current.setMap(null);
       setHasSubmitted(false);
       setLevelCompleted(false);
     }
