@@ -51,4 +51,6 @@ const LogoutPage = ({ isLoggedIn, handleLoginLogout }) => {
   );
 };
 
+
+
 export default LogoutPage;

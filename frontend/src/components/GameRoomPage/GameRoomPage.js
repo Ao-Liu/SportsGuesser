@@ -2,6 +2,8 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
+import { auth } from '../LogoutPage/firebase-config.js';
+
 const GameRoomPage = () => {
   const { roomId } = useParams();
   const navigate = useNavigate();
@@ -65,7 +67,25 @@ const GameRoomPage = () => {
     margin: "20px 0",
   };
 
-  let dummyUserID = "1234"; // TODO: replace this with signed in user info (firebase ID).
+  const [loginUser, setLoginUser] = useState(null);
+  useEffect(() => {
+    const fetchLoginUser = async () => {
+      try {
+        const user = await auth.currentUser;
+        if (user) {
+          setLoginUser(user);
+        } else {
+          navigate(`/login`);
+        }
+      } catch (error) {
+        console.error("Error fetching login user:", error);
+        navigate(`/`);
+      }
+    };
+    fetchLoginUser();
+  }, [navigate]);
+
+  const loginUserID = loginUser ? loginUser.uid : null;
 
   return (
     <div>
@@ -83,7 +103,7 @@ const GameRoomPage = () => {
                 </p>
               ))}
           </ul>
-          {roomDetails.players?.[0] === dummyUserID && (
+          {roomDetails.players?.[0] === loginUserID && (
             <button onClick={startGame}>Start Game</button>
           )}
         </>

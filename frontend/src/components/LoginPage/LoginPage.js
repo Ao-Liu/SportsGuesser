@@ -6,6 +6,8 @@ import { auth, GoogleAuthProvider, signInWithPopup, signOut } from './firebase-c
 // Import the Google icon image
 import googleIcon from './giphy.gif';
 
+const BACKEND_ENDPOINT = "http://localhost:3001";
+
 const LoginPage = ({ isLoggedIn, handleLoginLogout }) => {
   const navigate = useNavigate();
   const typoStyle = {
@@ -28,7 +30,27 @@ const LoginPage = ({ isLoggedIn, handleLoginLogout }) => {
   const signInWithGoogle = async () => {
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider)
+
+      // TODO: Handle, 
+      // check if login user not in User model database
+      // that is, not yeat exist a User object,
+      // create a User object based on the login Oauth.
+      
+      .then((result) => {
+        // The signed-in user info
+        const user = result.user;
+  
+        // Send the ID token directly to backend
+        user.getIdToken().then((idToken) => {
+          sendUserDataToServer(user, idToken);
+        });
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+      
+
       console.log('Authentication successful, redirecting...');
       handleLoginLogout();
       navigate('/'); // Redirect to the index page upon successful login
@@ -60,6 +82,36 @@ const LoginPage = ({ isLoggedIn, handleLoginLogout }) => {
       </Button>
     </div>
   );
+};
+
+
+// Function to send user data and ID token to the server
+const sendUserDataToServer = (user, idToken) => {
+  const userInfo = {
+    uid: user.uid,
+    displayName: user.displayName,
+    email: user.email,
+    photoURL: user.photoURL,
+    // numGamesCompleted: 0,
+    // numGamesWon: 0,
+    // conqueredCourNameUrl: [
+    //     { name: 'Staples Center Lakers', url: 'https://c8.alamy.com/comp/AR6H8X/nba-la-lakers-staple-center-los-angeles-california-usa-AR6H8X.jpg' },
+    //     { name: 'Pittsburgh Penguins Hockey', url: 'https://www.discovertheburgh.com/wp-content/uploads/2018/04/20180411_200128-600px.jpg' },
+    // ],
+  };
+  const url = BACKEND_ENDPOINT + '/users/create';
+  // console.log("url url url" , url)
+  fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
+    },
+    body: JSON.stringify(userInfo)
+  })
+  .then(response => response.json())
+  .then(data => console.log('User data saved:', data))
+  .catch(error => console.error('Failed to save user data:', error));
 };
 
 export default LoginPage;
