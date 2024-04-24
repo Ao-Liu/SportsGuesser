@@ -196,7 +196,6 @@ const GamePlayPage = () => {
         distance: distance,
       });
       setHasSubmitted(true);
-
     }
   };
 
@@ -212,6 +211,8 @@ const GamePlayPage = () => {
       polylineRef.current.setMap(null);
       setHasSubmitted(false);
       setLevelCompleted(false);
+      setPlayerLat("");
+      setPlayerLng("");
     }
   };
 
@@ -224,6 +225,7 @@ const GamePlayPage = () => {
           <input
             type="number"
             value={playerLat}
+            name="Latitude"
             onChange={(e) => setPlayerLat(e.target.value)}
             placeholder="Latitude"
             style={textStyle}
@@ -231,6 +233,7 @@ const GamePlayPage = () => {
           <input
             type="number"
             value={playerLng}
+            name="Longitude"
             onChange={(e) => setPlayerLng(e.target.value)}
             placeholder="Longitude"
             style={textStyle}
