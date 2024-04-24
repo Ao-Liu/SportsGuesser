@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from "react-router-dom";
 
 import { Typography, Avatar, Box } from '@mui/material';
+
 // import './profilePage.css';
 
 const BACKEND_ENDPOINT = "http://localhost:3001";
@@ -14,7 +15,7 @@ const textStyles = {
 };
 
 const DesktopProfilePage = () => {
-  
+
   // ///////////////////////////////////// CSS /////////////////////////
   const containerStyle = {
     display: 'flex',
@@ -55,6 +56,13 @@ const DesktopProfilePage = () => {
     fontSize: '2.5vw'
   }
 
+  const NoVisitedCourtStyle = {
+    ...textStyles,
+    marginTop: '0.5vw',
+    marginBottom: '0.5vw',
+    fontSize: '1.0vw'
+  }
+
   // ///////////////////////////////////// CSS /////////////////////////
 
   // /////////// fetch data from backend /////////////////////////////
@@ -64,7 +72,7 @@ const DesktopProfilePage = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const url =  BACKEND_ENDPOINT + `/users/${uid}`;  // Adjust this URL to match your API endpoint
+    const url = BACKEND_ENDPOINT + `/users/${uid}`;  // Adjust this URL to match your API endpoint
     fetch(url)
       .then(response => {
         if (!response.ok) {
@@ -78,7 +86,7 @@ const DesktopProfilePage = () => {
       })
       .catch(err => {
         console.error("Error fetching data:", err);
-        setError(err.message); 
+        setError(err.message);
         setLoading(false);
       });
   }, [uid]);  // The effect depends on userId and will re-run if userId changes
@@ -114,18 +122,28 @@ const DesktopProfilePage = () => {
       </Typography>
 
       <Typography style={ConqueredCourtStyle} variant="h4">
-        Visited Courts
+      <i class="bi bi-pin-map-fill"></i> Visited Courts <i class="bi bi-pin-map-fill"></i>
       </Typography>
 
       <Box display="flex" justifyContent="center">
-        {userInfo.visitedCourNameUrl.map((court, index) => (
-          <div key={index} style={{ marginLeft: '1.5vw', marginRight: '1.5vw', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
-            <Avatar alt={court.CourtdisplayName} src={court.CourtPhotoURL} style={{ width: '15vw', height: '15vw', ...avatarStyle, marginTop: '2.5vw' }} />
-            <Typography style={{ ...textStyles, fontSize: '1.5vw' }} variant="subtitle1">
-              {court.name}
-            </Typography>
-          </div>
-        ))}
+        {userInfo.visitedCourNameUrl && userInfo.visitedCourNameUrl.length > 0 ? (
+          userInfo.visitedCourNameUrl.map((court, index) => (
+            <div key={index} style={{ marginLeft: '1.5vw', marginRight: '1.5vw', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+              <Avatar
+                alt={court.CourtdisplayName}
+                src={court.CourtPhotoURL}
+                style={{ width: '15vw', height: '15vw', marginTop: '2.5vw' }}
+              />
+              <Typography variant="subtitle1" style={{ fontSize: '1.5vw' }}>
+                {court.name}
+              </Typography>
+            </div>
+          ))
+        ) : (
+          <Typography style={NoVisitedCourtStyle} variant="h4">
+            No courts visited yet...
+          </Typography>
+        )}
       </Box>
     </div>
   );

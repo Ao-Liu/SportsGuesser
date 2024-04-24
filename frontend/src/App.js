@@ -25,6 +25,8 @@ function App() {
       <BrowserRouter>
         <NavBar isLoggedIn={isLoggedIn} handleLoginLogout={handleLoginLogout} />
         <header className="App-header">
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"></link>
+
           <Routes>
             <Route exact path="/" element={<HomePage />} />
             <Route path="/nav1" element={<TemplatePage />} />
