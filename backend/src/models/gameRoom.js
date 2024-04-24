@@ -17,6 +17,7 @@ const gameRoomSchema = new Schema({
   ],
   gameStarted: { type: Boolean, default: false },
   currentLevel: { type: Number, default: 1 },
+  usedIndices: { type: [Number], default: [] },
   currentCoords: {
     type: { lat: Number, lng: Number },
     default: { lat: 0, lng: 0 },
