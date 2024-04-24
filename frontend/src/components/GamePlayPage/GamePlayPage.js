@@ -17,6 +17,7 @@ const GamePlayPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const mapRef = useRef(null);
+  const secondMapRef = useRef(null);  // answer map
 
   const userMarkerRef = useRef(null);
   const correctMarkerRef = useRef(null);
@@ -64,9 +65,32 @@ const GamePlayPage = () => {
     mapRef.current = map;
   };
 
+  const initAnsMap = () => {
+    if (!secondMapRef.current || !(secondMapRef.current instanceof Node)) {
+      console.error("Error: Answer map container is not a valid DOM node.");
+      return;
+    }
+
+    // Initialize the map
+    // TODO use pre-define stadium location
+    // const location = { lat: levelInfo.coords.lat, lng: levelInfo.coords.lng }
+    const location = { lat: 40.444, lng: -79.94295 } // TODO use pre-define stadium location
+
+    // Initialize street View
+    const panorama = new window.google.maps.StreetViewPanorama(
+      secondMapRef.current, {
+          position: location,
+          pov: { heading: 165, pitch: 0 },
+          zoom: 1,
+          disableDefaultUI: true, // Disables UI controls
+      });
+
+  }
+
   useEffect(() => {
-    if (isMapScriptLoaded && mapRef.current) {
+    if (isMapScriptLoaded && mapRef.current && secondMapRef.current) {
       initMap();
+      initAnsMap();
     }
   }, [isMapScriptLoaded]); // React only after the map script has loaded
 
@@ -219,7 +243,16 @@ const GamePlayPage = () => {
   return (
     <div>
       <h1 style={textStyle}>Game Level: {levelInfo?.level}</h1>
-      <div ref={mapRef} style={{ height: '600px', width: '600px', margin: 'auto' }}></div>
+      <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', gap: '20px' }}>
+        <div>
+          <p style={{ ...textStyle, textAlign: 'center' }}>Where is it?</p>
+          <div ref={secondMapRef} style={{ height: '600px', width: '600px', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}></div>
+        </div>
+        <div>
+          <p style={{ ...textStyle, textAlign: 'center' }}>You answer..</p>
+          <div ref={mapRef} style={{ height: '600px', width: '600px', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}></div>
+        </div>
+      </div>
       {!hasSubmitted && (
         <div>
           <input
