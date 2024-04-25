@@ -18,9 +18,10 @@ const gameRoomSchema = new Schema({
   gameStarted: { type: Boolean, default: false },
   currentLevel: { type: Number, default: 1 },
   usedIndices: { type: [Number], default: [] },
+  // visitedStadiumID: { type: [String], default: [] },
   currentCoords: {
-    type: { lat: Number, lng: Number },
-    default: { lat: 0, lng: 0 },
+    type: { courtId: String, name: String, url: String, lat: Number, lng: Number },
+    default: { name:"", url:"", lat: 0, lng: 0 },
   },
   createdAt: { type: Date, default: Date.now },
 });

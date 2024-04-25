@@ -73,26 +73,20 @@ const GamePlayPage = () => {
 
     // Initialize the map
     // TODO use pre-define stadium location
-    // const location = { lat: levelInfo.coords.lat, lng: levelInfo.coords.lng }
-    const location = { lat: 40.444, lng: -79.94295 } // TODO use pre-define stadium location
+    console.log("levelInfo.coords levelInfo.coords levelInfo.coords", levelInfo);
+    const location = { lat: levelInfo.coords.lat, lng: levelInfo.coords.lng }
+    // const location = { lat: 40.444, lng: -79.94295 } // TODO use pre-define stadium location
 
     // Initialize street View
     const panorama = new window.google.maps.StreetViewPanorama(
       secondMapRef.current, {
-          position: location,
-          pov: { heading: 165, pitch: 0 },
-          zoom: 1,
-          disableDefaultUI: true, // Disables UI controls
-      });
+      position: location,
+      pov: { heading: 165, pitch: 0 },
+      zoom: 1,
+      disableDefaultUI: true, // Disables UI controls
+    });
 
   }
-
-  useEffect(() => {
-    if (isMapScriptLoaded && mapRef.current && secondMapRef.current) {
-      initMap();
-      initAnsMap();
-    }
-  }, [isMapScriptLoaded]); // React only after the map script has loaded
 
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`);
@@ -101,6 +95,7 @@ const GamePlayPage = () => {
     newSocket.on("levelInfoFetched", (data) => {
       setLevelInfo(data);
       console.log("Received level info:", data);
+      console.log("Received level info: levelInfo levelInfo", levelInfo);
     });
     newSocket.on("levelCompleted", (data) => {
       setLevelCompleted(true);
@@ -127,6 +122,13 @@ const GamePlayPage = () => {
       newSocket.disconnect();
     };
   }, [roomId, navigate]);
+
+  useEffect(() => {
+    if (levelInfo && isMapScriptLoaded && mapRef.current && secondMapRef.current) {
+      initMap();
+      initAnsMap();
+    }
+  }, [isMapScriptLoaded, levelInfo]); // React only after the map script has loaded
 
 
   const placeMarker = (location, map) => {
@@ -285,6 +287,15 @@ const GamePlayPage = () => {
           <p style={textStyle}>Latitude: {playerLat}</p>
           <p style={textStyle}>Longitude: {playerLng}</p>
           <p style={textStyle}>Correct Coordinates:</p>
+          <div style={{ marginTop: '0', marginLeft: '1.5vw', marginRight: '1.5vw', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <img
+              src={levelInfo.coords.url}
+              style={{ width: '15vw', height: '15vw' }}
+            />
+            <span style={{ fontSize: '1.5vw', color: 'black'}}>
+              {levelInfo.coords.name}
+            </span>
+          </div>
           <p style={textStyle}>Latitude: {levelInfo.coords?.lat}</p>
           <p style={textStyle}>Longitude: {levelInfo.coords?.lng}</p>
         </div>
