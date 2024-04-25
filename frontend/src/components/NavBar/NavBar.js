@@ -4,7 +4,7 @@ import Toolbar from '@mui/material/Toolbar';
 import { Link } from 'react-router-dom';
 import { TouchBarBtn } from './styles';
 
-import { auth } from '../LogoutPage/firebase-config.js'; // Make sure this path is correct
+import { auth } from '../../firebase-config.js'; // Make sure this path is correct
 
 const Navbar = ({ isLoggedIn, handleLoginLogout }) => {
   

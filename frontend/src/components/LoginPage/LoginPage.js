@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Typography, Button } from '@mui/material';
 import { useNavigate } from 'react-router-dom';
-import { auth, GoogleAuthProvider, signInWithPopup, signOut } from './firebase-config'; // Make sure this path is correct
+import { auth, GoogleAuthProvider, signInWithPopup, signOut } from '../../firebase-config'; // Make sure this path is correct
 
 // Import the Google icon image
 import googleIcon from './giphy.gif';
@@ -45,6 +45,9 @@ const LoginPage = ({ isLoggedIn, handleLoginLogout }) => {
         user.getIdToken().then((idToken) => {
           sendUserDataToServer(user, idToken);
         });
+
+        // Store user UID in local storage
+        localStorage.setItem('userUID', user.uid);
       })
       .catch((error) => {
         console.error(error);
@@ -62,14 +65,18 @@ const LoginPage = ({ isLoggedIn, handleLoginLogout }) => {
 
   // Effect to check the user's auth status
   useEffect(() => {
-    auth.onAuthStateChanged(user => {
+    const unsubscribe = auth.onAuthStateChanged(user => {
       if (user) {
         console.log('User is logged in:', user);
-        // navigate('/'); // Ensure redirect to index if already logged in
+        // Optionally synchronize local storage with the current auth state
+        localStorage.setItem('userUID', user.uid);
+        // navigate('/'); // Optionally ensure redirect to index if already logged in
       } else {
         console.log('No user is logged in.');
+        localStorage.removeItem('userUID'); // Clear local storage if logged out
       }
     });
+    return () => unsubscribe(); // Cleanup the subscription
   }, [navigate]);
 
   return (

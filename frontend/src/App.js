@@ -1,5 +1,5 @@
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import HomePage from './components/HomePage/HomePage';
 import NavBar from './components/NavBar/NavBar';
 import TemplatePage from './components/TemplatePage/TemplatePage';
@@ -12,6 +12,7 @@ import LogoutPage from './components/LogoutPage/LogoutPage'; // Import LogoutPag
 import GameResultPage from './components/GameResultPage/GameResultPage'
 /**  TODO: set loggin*/
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { auth } from './firebase-config'; // Make sure this path is correct
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false); // Manage login state
@@ -19,6 +20,19 @@ function App() {
   const handleLoginLogout = () => {
     setIsLoggedIn(!isLoggedIn); // Toggle login/logout state
   };
+
+  useEffect(() => {
+    // Firebase listens to the authentication state
+    const unsubscribe = auth.onAuthStateChanged(user => {
+      if (user) {
+        setIsLoggedIn(true);
+      } else {
+        setIsLoggedIn(false);
+      }
+    });
+
+    return () => unsubscribe();  // Cleanup subscription
+  }, []);
 
   return (
     <div className="App">
