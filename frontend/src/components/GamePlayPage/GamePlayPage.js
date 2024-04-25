@@ -3,7 +3,7 @@ import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
-import { auth } from '../LogoutPage/firebase-config.js';
+import { auth } from '../../firebase-config.js';
 
 const GamePlayPage = () => {
   const location = useLocation();
@@ -180,26 +180,29 @@ const GamePlayPage = () => {
 
   ////////////////////////////////////////////////////////
 
-  const [loginUser, setLoginUser] = useState(null);
-  useEffect(() => {
-    const fetchLoginUser = async () => {
-      try {
-        const user = await auth.currentUser;
-        if (user) {
-          setLoginUser(user);
-        } else {
-          navigate(`/login`);
-        }
-      } catch (error) {
-        console.error("Error fetching login user:", error);
-        navigate(`/`);
-      }
-    };
-    fetchLoginUser();
-  }, [navigate]);
+  // const [loginUser, setLoginUser] = useState(null);
+  // useEffect(() => {
+  //   const fetchLoginUser = async () => {
+  //     try {
+  //       const user = await auth.currentUser;
+  //       if (user) {
+  //         setLoginUser(user);
+  //       } else {
+  //         navigate(`/login`);
+  //       }
+  //     } catch (error) {
+  //       console.error("Error fetching login user:", error);
+  //       navigate(`/`);
+  //     }
+  //   };
+  //   fetchLoginUser();
+  // }, [navigate]);
 
-  const loginUserID = loginUser ? loginUser.uid : null;
+  // const loginUserID = loginUser ? loginUser.uid : null;
   /////////////////////////////////////////////////////////////////////
+
+  // Retrieve the UID from local storage
+  const loginUserID = localStorage.getItem('userUID');
 
 
 

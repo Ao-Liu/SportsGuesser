@@ -1,7 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Typography, Button } from '@mui/material';
-import { auth } from './firebase-config'; // Ensure this path correctly points to your Firebase config file
+import { auth } from '../../firebase-config'; // Ensure this path correctly points to your Firebase config file
 
 // Import the GIF image
 import logoutGif from './icons8-logout.gif';
@@ -30,6 +30,7 @@ const LogoutPage = ({ isLoggedIn, handleLoginLogout }) => {
     auth.signOut().then(() => {
       console.log('Logout successful');
       handleLoginLogout();
+      localStorage.removeItem('userUID'); // Clear local storage if logged out
       navigate('/login'); // Redirect to the login page after logout
     }).catch((error) => {
       console.error('Logout failed:', error);
