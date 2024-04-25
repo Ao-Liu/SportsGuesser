@@ -132,15 +132,7 @@ io.on("connection", (socket) => {
     }
     socket.join(data.roomId);
     room.gameStarted = true;
-    
-      const randomIndex = generateUniqueRandomIndex(room.usedIndices);
-      if (!randomIndex) {
-        socket.emit("error", "No more unique coordinates available");
-        return;
-      }
-  
-      room.usedIndices.push(randomIndex);
-    room.currentCoords = generateRandomCoords(randomIndex); // TODO: change this
+    room.currentCoords = await generateRandomCoords();
     await room.save();
     io.to(data.roomId).emit("gameStarted", {
       level: room.currentLevel,
@@ -160,15 +152,7 @@ io.on("connection", (socket) => {
         return;
       }
       socket.join(roomId);
-      
-      const randomIndex = generateUniqueRandomIndex(room.usedIndices);
-      if (!randomIndex) {
-        socket.emit("error", "No more unique coordinates available");
-        return;
-      }
-  
-      room.usedIndices.push(randomIndex);
-      room.currentCoords = generateRandomCoords(randomIndex); // TODO: change this
+      room.currentCoords = await generateRandomCoords(); // TODO: change this
       await room.save();
       io.to(roomId).emit("levelInfoFetched", {
         level: room.currentLevel,
@@ -186,53 +170,29 @@ io.on("connection", (socket) => {
   socket.on("nextLevel", async ({ roomId, currentLevel }) => {
     try {
       const room = await GameRoom.findById(roomId);
-      if (!room) {
+      if (room) {
+        if (room.numOfLevels == currentLevel) {
+          socket.join(roomId);
+          socket.emit("gameEnded");
+        } else {
+          const nextLevel = currentLevel + 1;
+          room.currentLevel = nextLevel;
+          await room.save();
+          socket.join(roomId);
+          room.currentCoords = await generateRandomCoords(); // TODO: change this
+          socket.emit("newLevelInfo", {
+            level: room.currentLevel,
+            coords: room.currentCoords,
+          });
+        }
+      } else {
         socket.emit("error", "Room not found");
-        return;
       }
-  
-      if (room.numOfLevels == currentLevel) {
-        socket.emit("gameEnded");
-        return;
-      }
-  
-      const nextLevel = currentLevel + 1;
-      room.currentLevel = nextLevel;
-  
-      const randomIndex = generateUniqueRandomIndex(room.usedIndices);
-      if (!randomIndex) {
-        socket.emit("error", "No more unique coordinates available");
-        return;
-      }
-      room.usedIndices.push(randomIndex);
-      room.currentCoords = generateRandomCoords(randomIndex);
-      console.log("Updating room with:", room);
-      await room.save();
-  
-      socket.emit("newLevelInfo", {
-        level: room.currentLevel,
-        coords: room.currentCoords,
-      });
     } catch (err) {
       console.error("Error updating level:", err);
       socket.emit("error", "Failed to update level");
     }
   });
-  
-  
-  function generateUniqueRandomIndex(usedIndices) {
-    const possibleIndices = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11].filter(index => !usedIndices.includes(index));
-    console.log("Available Indices: ", possibleIndices); // print
-    if (possibleIndices.length === 0) {
-      console.log("No indices available.");
-      return null;
-    }
-    const randomIndex = possibleIndices[Math.floor(Math.random() * possibleIndices.length)];
-    console.log("Selected Index: ", randomIndex); // print
-    return randomIndex;
-  }
-  
-  
 
   /**
    * Records answer for each step.
