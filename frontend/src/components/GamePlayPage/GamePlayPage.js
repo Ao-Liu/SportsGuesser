@@ -50,8 +50,8 @@ const GamePlayPage = () => {
 
     // Initialize the map
     const map = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 0, lng: 0 },
-      zoom: 2,
+      center: { lat: levelInfo.coords.lat, lng: levelInfo.coords.lng },
+      zoom: 10,
     });
 
     map.addListener("click", (e) => {
