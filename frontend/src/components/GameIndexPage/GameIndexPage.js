@@ -53,6 +53,10 @@ const GameIndexPage = () => {
   const loginUserID = localStorage.getItem('userUID');
 
   const createRoom = () => {
+    if (!loginUserID) {
+      alert("Please log in to start a game");
+      return;
+    } 
     if (socket) {
       socket.emit("createRoom", {
         numOfLevels: numOfLevels,
@@ -62,6 +66,10 @@ const GameIndexPage = () => {
   };
 
   const joinRoom = () => {
+    if (!loginUserID) {
+      alert("Please log in to join a game");
+      return;
+    } 
     if (socket && inviteCode) {
       socket.emit("joinRoom", {
         inviteCode: inviteCode,
