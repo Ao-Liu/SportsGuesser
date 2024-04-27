@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
-import { auth } from '../../firebase-config.js';
+import { auth } from "../../firebase-config.js";
 
 const GameRoomPage = () => {
   const { roomId } = useParams();
@@ -10,7 +10,7 @@ const GameRoomPage = () => {
   const [roomDetails, setRoomDetails] = useState({});
   const [error, setError] = useState("");
   const [socket, setSocket] = useState(null);
-  const [usernames, setUsernames] = useState([]);
+  const [usernames, setUsernames] = useState(new Set());
 
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`, {
@@ -34,9 +34,7 @@ const GameRoomPage = () => {
        */
       socket.on("roomDetails", (room) => {
         setRoomDetails(room);
-        console.log(room);
         for (const player of room.players) {
-          console.log(player)
           socket.emit("getUsername", { roomId, uid: player });
         }
       });
@@ -44,8 +42,11 @@ const GameRoomPage = () => {
        * Fetches username.
        */
       socket.on("username", (data) => {
-        console.log(`username ${data}`)
-        setUsernames(prevUsernames => [...prevUsernames, data]);
+        setUsernames((prevUsernames) => {
+          const newSet = new Set(prevUsernames); // TODO: issue with identical name
+          newSet.add(data);
+          return newSet;
+        });
       });
       /**
        * Listens to starting game.
@@ -53,7 +54,9 @@ const GameRoomPage = () => {
       socket.on("gameStarted", (data) => {
         console.log("Game has started!");
         alert("Game has started!");
-        navigate(`/game/${roomId}/play`, { state: { roomId: roomId, level: data.level, coords: data.coords } });
+        navigate(`/game/${roomId}/play`, {
+          state: { roomId: roomId, level: data.level, coords: data.coords },
+        });
       });
       socket.on("roomDetailsError", (errorMsg) => {
         setError(errorMsg);
@@ -99,9 +102,9 @@ const GameRoomPage = () => {
   // }, [navigate]);
 
   // const loginUserID = loginUser ? loginUser.uid : null;
-  
+
   // Retrieve the UID from local storage
-  const loginUserID = localStorage.getItem('userUID');
+  const loginUserID = localStorage.getItem("userUID");
 
   return (
     <div>
@@ -110,18 +113,17 @@ const GameRoomPage = () => {
       {!error && roomDetails && (
         <>
           <p style={textStyle}>Number of Levels: {roomDetails.numOfLevels}</p>
-          <p style={textStyle}>Please share {roomDetails.inviteCode} to invite other players to join this game.</p>
+          <p style={textStyle}>
+            Please share {roomDetails.inviteCode} to invite other players to
+            join this game.
+          </p>
           <p style={textStyle}>Players:</p>
           <ul>
-            {/* {roomDetails.players &&
-              roomDetails.players.map((player, index) => (
-                <p key={index} style={textStyle}>
-                  {index + 1}: {player}
-                </p>
-              ))} */}
-              {usernames && usernames.map((username, index) => (
-                  <p key={index} style={textStyle}>{index + 1}: {username}</p>
-                ))}
+            {[...usernames].map((username, index) => (
+              <p key={username} style={textStyle}>
+                {index + 1}: {username}
+              </p>
+            ))}
           </ul>
           {roomDetails.players?.[0] === loginUserID && (
             <button onClick={startGame}>Start Game</button>
