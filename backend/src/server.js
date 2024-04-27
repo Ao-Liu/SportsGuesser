@@ -7,6 +7,7 @@ const bodyParser = require("body-parser");
 const logger = require("morgan");
 const GameRoom = require("./models/gameRoom");
 const { generateUniqueCode, generateRandomCoords, calculateAndRankResults } = require("./utils");
+const User = require('./models/user');
 
 const API_PORT = 3001;
 const app = express();
@@ -244,6 +245,20 @@ io.on("connection", (socket) => {
     } catch (err) {
       console.error("Failed to get results:", err);
       socket.emit("error", "Failed to fetch results");
+    }
+  });
+
+  /**
+   * Fethches username.
+   */
+  socket.on("getUsername", async ({ roomId, uid }) => {
+    try {
+      const user = await User.findOne({ uid: uid });
+      socket.join(roomId);
+      io.to(roomId).emit("username", user.displayName);
+    } catch (err) {
+      console.error("Failed to get user info:", err);
+      socket.emit("error", "Failed to fetch user info");
     }
   });
 

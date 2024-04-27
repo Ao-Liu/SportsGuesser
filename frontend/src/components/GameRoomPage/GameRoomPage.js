@@ -10,6 +10,7 @@ const GameRoomPage = () => {
   const [roomDetails, setRoomDetails] = useState({});
   const [error, setError] = useState("");
   const [socket, setSocket] = useState(null);
+  const [usernames, setUsernames] = useState([]);
 
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`, {
@@ -34,6 +35,17 @@ const GameRoomPage = () => {
       socket.on("roomDetails", (room) => {
         setRoomDetails(room);
         console.log(room);
+        for (const player of room.players) {
+          console.log(player)
+          socket.emit("getUsername", { roomId, uid: player });
+        }
+      });
+      /**
+       * Fetches username.
+       */
+      socket.on("username", (data) => {
+        console.log(`username ${data}`)
+        setUsernames(prevUsernames => [...prevUsernames, data]);
       });
       /**
        * Listens to starting game.
@@ -101,12 +113,15 @@ const GameRoomPage = () => {
           <p style={textStyle}>Please share {roomDetails.inviteCode} to invite other players to join this game.</p>
           <p style={textStyle}>Players:</p>
           <ul>
-            {roomDetails.players &&
+            {/* {roomDetails.players &&
               roomDetails.players.map((player, index) => (
                 <p key={index} style={textStyle}>
                   {index + 1}: {player}
                 </p>
-              ))}
+              ))} */}
+              {usernames && usernames.map((username, index) => (
+                  <p key={index} style={textStyle}>{index + 1}: {username}</p>
+                ))}
           </ul>
           {roomDetails.players?.[0] === loginUserID && (
             <button onClick={startGame}>Start Game</button>
