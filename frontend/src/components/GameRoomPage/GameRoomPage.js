@@ -33,6 +33,7 @@ const GameRoomPage = () => {
        */
       socket.on("roomDetails", (room) => {
         setRoomDetails(room);
+        console.log(room);
       });
       /**
        * Listens to starting game.
@@ -92,11 +93,12 @@ const GameRoomPage = () => {
 
   return (
     <div>
-      <h1 style={textStyle}>Game Room: {roomId}</h1>
+      {/* <h1 style={textStyle}>Game Room: {roomId}</h1> */}
       {error && <p style={textStyle}>Error: {error}</p>}
       {!error && roomDetails && (
         <>
           <p style={textStyle}>Number of Levels: {roomDetails.numOfLevels}</p>
+          <p style={textStyle}>Please share {roomDetails.inviteCode} to invite other players to join this game.</p>
           <p style={textStyle}>Players:</p>
           <ul>
             {roomDetails.players &&
