@@ -220,8 +220,6 @@ const GamePlayPage = () => {
   // Retrieve the UID from local storage
   const loginUserID = localStorage.getItem('userUID');
 
-
-
   const handleSubmit = () => {
     if (socket && playerLat && playerLng && levelInfo?.coords) {
       const playerLocation = new window.google.maps.LatLng(playerLat, playerLng);

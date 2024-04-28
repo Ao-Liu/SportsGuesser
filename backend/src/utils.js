@@ -81,12 +81,13 @@ async function calculateAndRankResults(roomId) {
     }));
     room.winnerCalculated = true;
     if (rankedResults.length > 0) {
+      // update numGamesWon for the winner
       const winnerUsername = rankedResults[0].displayName;
-      const winnerBeforeUpdate = await User.findOne({ displayName: winnerUsername });
-      console.log(`Before update: ${winnerBeforeUpdate.numGamesWon}`);
-      await User.updateOne({ displayName: winnerUsername }, { $inc: { numGamesWon: 1 } });
-      const winnerAfterUpdate = await User.findOne({ displayName: winnerUsername });
-      console.log(`After update: ${winnerAfterUpdate.numGamesWon}`);
+      await User.updateOne({ displayName: winnerUsername }, { $inc: { numGamesWon: 1 } }).session(session);;
+    }
+    // update numGamesCompleted for everyone
+    for (const playerUid of room.players) {
+      await User.updateOne({ uid: playerUid }, { $inc: { numGamesCompleted: 1 } }).session(session);
     }
     await room.save({ session });
     await session.commitTransaction();
