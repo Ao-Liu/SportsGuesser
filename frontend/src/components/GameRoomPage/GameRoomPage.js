@@ -34,6 +34,9 @@ const GameRoomPage = () => {
        */
       socket.on("roomDetails", (room) => {
         setRoomDetails(room);
+        if (room.winnerCalculated) {
+          navigate(`/game/${roomId}/results`);
+        }
         for (const player of room.players) {
           socket.emit("getUsername", { roomId, uid: player });
         }
@@ -82,26 +85,6 @@ const GameRoomPage = () => {
     textAlign: "center",
     margin: "20px 0",
   };
-
-  // const [loginUser, setLoginUser] = useState(null);
-  // useEffect(() => {
-  //   const fetchLoginUser = async () => {
-  //     try {
-  //       const user = await auth.currentUser;
-  //       if (user) {
-  //         setLoginUser(user);
-  //       } else {
-  //         navigate(`/login`);
-  //       }
-  //     } catch (error) {
-  //       console.error("Error fetching login user:", error);
-  //       navigate(`/`);
-  //     }
-  //   };
-  //   fetchLoginUser();
-  // }, [navigate]);
-
-  // const loginUserID = loginUser ? loginUser.uid : null;
 
   // Retrieve the UID from local storage
   const loginUserID = localStorage.getItem("userUID");

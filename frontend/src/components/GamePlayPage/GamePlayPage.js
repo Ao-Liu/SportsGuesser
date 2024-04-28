@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { useParams } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
@@ -7,7 +8,7 @@ import { auth } from '../../firebase-config.js';
 
 const GamePlayPage = () => {
   const location = useLocation();
-  const { roomId } = location.state || {};
+  const { roomId } = useParams();
   const [socket, setSocket] = useState(null);
   const [playerLat, setPlayerLat] = useState("");
   const [playerLng, setPlayerLng] = useState("");
@@ -91,6 +92,19 @@ const GamePlayPage = () => {
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`);
     setSocket(newSocket);
+    /**
+       * Fetches room details from backend.
+       */
+    newSocket.emit("getRoomDetails", roomId);
+    /**
+       * Processes room details.
+       */
+    newSocket.on("roomDetails", (room) => {
+      console.log(`111111111 ${room}`);
+      if (room.winnerCalculated) {
+        navigate(`/game/${roomId}/results`);
+      }
+    });
     newSocket.emit("getLevelInfo", { roomId });
     newSocket.on("levelInfoFetched", (data) => {
       setLevelInfo(data);
