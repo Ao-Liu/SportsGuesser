@@ -1,7 +1,8 @@
 const crypto = require("crypto");
 const GameRoom = require("./models/gameRoom");
-const User = require('./models/user');
+const User = require("./models/user");
 const Court = require("./models/court");
+const mongoose = require("mongoose");
 
 /**
  * Generates a 4-digit invite code.
@@ -39,15 +40,24 @@ async function generateRandomCoords() {
  * Generates game results.
  * e.g. [ { displayName: 'Ao Liu', totalDistance: 6910.2967512598225 } ]
  */
+
 async function calculateAndRankResults(roomId) {
+  const session = await mongoose.startSession();
+  session.startTransaction();
   try {
-    const room = await GameRoom.findById(roomId);
+    const room = await GameRoom.findById(roomId).session(session);
     if (!room) {
+      await session.abortTransaction();
+      session.endSession();
       return { error: "Room not found" };
     }
-    const answers = room.answers;
+    if (room.winnerCalculated) {
+      await session.abortTransaction();
+      session.endSession();
+      return room.rankings; 
+    }
     const distanceSumByUid = {};
-    answers.forEach((answer) => {
+    room.answers.forEach((answer) => {
       if (distanceSumByUid[answer.uid]) {
         distanceSumByUid[answer.uid] += answer.distance;
       } else {
@@ -55,21 +65,36 @@ async function calculateAndRankResults(roomId) {
       }
     });
     const uids = Object.keys(distanceSumByUid);
-    const userInfos = await User.find({ uid: { $in: uids } }).exec();
-    const uidToDisplayName = userInfos.reduce(
-      (acc, user) => ({
-        ...acc,
-        [user.uid]: user.displayName || "Unknown",
-      }),
-      {}
-    );
-    const rankedResults = uids.map((uid) => ({
+    const userInfos = await User.find({ 'uid': { $in: uids } }).session(session);
+    const uidToDisplayName = userInfos.reduce((acc, user) => ({
+      ...acc,
+      [user.uid]: user.displayName || "Unknown",
+    }), {});
+    const rankedResults = uids.map(uid => ({
       displayName: uidToDisplayName[uid],
-      totalDistance: distanceSumByUid[uid],
+      totalDistance: distanceSumByUid[uid]
     }));
     rankedResults.sort((a, b) => a.totalDistance - b.totalDistance);
+    room.rankings = rankedResults.map(result => ({
+      displayName: result.displayName,
+      totalDistance: result.totalDistance
+    }));
+    room.winnerCalculated = true;
+    if (rankedResults.length > 0) {
+      const winnerUsername = rankedResults[0].displayName;
+      const winnerBeforeUpdate = await User.findOne({ displayName: winnerUsername });
+      console.log(`Before update: ${winnerBeforeUpdate.numGamesWon}`);
+      await User.updateOne({ displayName: winnerUsername }, { $inc: { numGamesWon: 1 } });
+      const winnerAfterUpdate = await User.findOne({ displayName: winnerUsername });
+      console.log(`After update: ${winnerAfterUpdate.numGamesWon}`);
+    }
+    await room.save({ session });
+    await session.commitTransaction();
+    session.endSession();
     return rankedResults;
   } catch (err) {
+    await session.abortTransaction();
+    session.endSession();
     console.error("Error calculating results:", err);
     return { error: "Error calculating results" };
   }
