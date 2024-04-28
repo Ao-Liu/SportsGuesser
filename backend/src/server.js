@@ -239,7 +239,6 @@ io.on("connection", (socket) => {
   socket.on("getResults", async ({ roomId }) => {
     try {
       let results = await calculateAndRankResults(roomId);
-      console.log(results);
       socket.join(roomId);
       io.to(roomId).emit("results", results);
     } catch (err) {

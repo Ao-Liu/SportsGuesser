@@ -19,7 +19,7 @@ const GameResultPage = () => {
 
     newSocket.on("results", (data) => {
       setResults(data);
-      console.log("Received results:", data);
+      console.log(data);
     });
 
     newSocket.on("error", (errorMsg) => {
@@ -45,12 +45,14 @@ const GameResultPage = () => {
 
   return (
     <div>
-      <h1 style={textStyle}>Game Results for Room: {roomId}</h1>
       {error && <p>Error: {error}</p>}
+      <h2 style={textStyle}>
+        Player, Sum of distances between guesses and the correct answers
+      </h2>
       <ul>
         {results.map((result, index) => (
           <p style={textStyle} key={index}>
-            Player: {result.uid}, Score: {result.totalDistance}
+            {result.displayName}, {result.totalDistance.toFixed(2)} km
           </p>
         ))}
       </ul>
