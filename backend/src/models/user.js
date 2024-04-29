@@ -11,7 +11,15 @@ const UserSchema = new Schema({
   photoURL: { type: String },
   numGamesCompleted: { type: Number, default: 0 },
   numGamesWon: { type: Number, default: 0 },
-  visitedCourts: [{ courtId: String }],
+  visitedCourts: [
+    {
+      courtId: { type: String, required: true },
+      name: { type: String, required: true },
+      photoURL: { type: String },
+      lat: { type: Number },
+      lng: { type: Number },
+    },
+  ],
 });
 
 module.exports = mongoose.model("User", UserSchema);

@@ -108,7 +108,14 @@ async function calculateAndRankResults(roomId) {
           (v) => v.courtId === court.courtId
         );
         if (!isVisited) {
-          user.visitedCourts.push({ courtId: court.courtId });
+          const newCourt = {
+            courtId: court.courtId,
+            name: court.name,
+            photoURL: court.photoURL,
+            lat: court.lat,
+            lng: court.lng,
+          };
+          user.visitedCourts.push(newCourt);
         }
       }
       await user.save({ session });

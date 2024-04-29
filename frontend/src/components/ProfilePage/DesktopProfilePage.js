@@ -126,8 +126,8 @@ const DesktopProfilePage = () => {
       </Typography>
 
       <Box display="flex" justifyContent="center">
-        {userInfo.visitedCourNameUrl && userInfo.visitedCourNameUrl.length > 0 ? (
-          userInfo.visitedCourNameUrl.map((court, index) => (
+        {userInfo.visitedCourts && userInfo.visitedCourts.length > 0 ? (
+          userInfo.visitedCourts.map((court, index) => (
             <div key={index} style={{ marginLeft: '1.5vw', marginRight: '1.5vw', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Avatar
                 alt={court.CourtdisplayName}
