@@ -68,7 +68,7 @@ async function calculateAndRankResults(roomId) {
     const userInfos = await User.find({ 'uid': { $in: uids } }).session(session);
     const uidToDisplayName = userInfos.reduce((acc, user) => ({
       ...acc,
-      [user.uid]: user.displayName || "Unknown",
+      [user.uid]: `${user.displayName} (${user.email})` || "Unknown",
     }), {});
     const rankedResults = uids.map(uid => ({
       displayName: uidToDisplayName[uid],

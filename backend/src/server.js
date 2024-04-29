@@ -254,7 +254,7 @@ io.on("connection", (socket) => {
     try {
       const user = await User.findOne({ uid: uid });
       socket.join(roomId);
-      io.to(roomId).emit("username", user.displayName);
+      io.to(roomId).emit("username", `${user.displayName} (${user.email})`);
     } catch (err) {
       console.error("Failed to get user info:", err);
       socket.emit("error", "Failed to fetch user info");

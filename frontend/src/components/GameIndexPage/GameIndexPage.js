@@ -91,7 +91,6 @@ const GameIndexPage = () => {
        * Handles joining game room.
        */
       socket.on("joinedRoom", (room) => {
-        console.log(room.players);
         setResponse(`Joined Room: ${room._id}`);
         navigate(`/game/${room._id}`);
       });
