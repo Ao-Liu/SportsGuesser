@@ -18,6 +18,7 @@ const GamePlayPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const mapRef = useRef(null);
+  const mapRef_dom = useRef(null);
   const secondMapRef = useRef(null);  // answer map
 
   const userMarkerRef = useRef(null);
@@ -44,13 +45,18 @@ const GamePlayPage = () => {
   };
 
   const initMap = () => {
-    if (!mapRef.current || !(mapRef.current instanceof Node)) {
+    if (!mapRef_dom.current || !(mapRef_dom.current instanceof Node)) {
       console.error("Error: Map container is not a valid DOM node.");
       return;
     }
 
+    // Check if a map instance already exists
+    if (mapRef.current) {
+      mapRef.current = null;  // Dispose of the previous map instance if necessary
+    }
+
     // Initialize the map
-    const map = new window.google.maps.Map(mapRef.current, {
+    const map = new window.google.maps.Map(mapRef_dom.current, {
       center: { lat: levelInfo.coords.lat, lng: levelInfo.coords.lng },
       zoom: 10,
     });
@@ -137,7 +143,7 @@ const GamePlayPage = () => {
   }, [roomId, navigate]);
 
   useEffect(() => {
-    if (levelInfo && isMapScriptLoaded && mapRef.current && secondMapRef.current) {
+    if (levelInfo && isMapScriptLoaded && mapRef_dom.current && secondMapRef.current) {
       initMap();
       initAnsMap();
     }
@@ -266,7 +272,7 @@ const GamePlayPage = () => {
         </div>
         <div>
           <p style={{ ...textStyle, textAlign: 'center' }}>You answer..</p>
-          <div ref={mapRef} style={{ height: '600px', width: '600px', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}></div>
+          <div ref={mapRef_dom} style={{ height: '600px', width: '600px', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}></div>
         </div>
       </div>
       {!hasSubmitted && (
