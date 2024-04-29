@@ -37,6 +37,16 @@ const gameRoomSchema = new Schema({
       totalDistance: Number,
     },
   ],
+  visitedCourts: [
+    {
+      courtId: String,
+      name: String,
+      url: String,
+      lat: Number,
+      lng: Number,
+      visitedDate: Date,
+    },
+  ],
 });
 
 module.exports = mongoose.model("GameRoom", gameRoomSchema);

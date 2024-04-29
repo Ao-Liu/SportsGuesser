@@ -20,13 +20,16 @@ async function generateUniqueCode() {
 /**
  * Returns a specific coordinate of the selected court.
  */
-async function generateRandomCoords() {
-  const randomCourtID = crypto.randomInt(1, 12).toString();
-  const court = await Court.findOne({ courtId: randomCourtID }).exec();
-  if (!court) {
-    throw new Error("No court found for the generated ID.");
+async function generateRandomCoords(visitedCourtIds) {
+  const courts = await Court.find({
+    courtId: { $nin: visitedCourtIds },
+  }).exec();
+  if (!courts.length) {
+    throw new Error("No unvisited courts available.");
   }
-  console.log("court court court court: ", court);
+  const randomIndex = crypto.randomInt(0, courts.length);
+  const court = courts[randomIndex];
+  console.log("Selected unvisited court: ", court);
   return {
     courtId: court.courtId,
     name: court.name,
@@ -54,7 +57,7 @@ async function calculateAndRankResults(roomId) {
     if (room.winnerCalculated) {
       await session.abortTransaction();
       session.endSession();
-      return room.rankings; 
+      return room.rankings;
     }
     const distanceSumByUid = {};
     room.answers.forEach((answer) => {
@@ -65,29 +68,38 @@ async function calculateAndRankResults(roomId) {
       }
     });
     const uids = Object.keys(distanceSumByUid);
-    const userInfos = await User.find({ 'uid': { $in: uids } }).session(session);
-    const uidToDisplayName = userInfos.reduce((acc, user) => ({
-      ...acc,
-      [user.uid]: `${user.displayName} (${user.email})` || "Unknown",
-    }), {});
-    const rankedResults = uids.map(uid => ({
+    const userInfos = await User.find({ uid: { $in: uids } }).session(session);
+    const uidToDisplayName = userInfos.reduce(
+      (acc, user) => ({
+        ...acc,
+        [user.uid]: `${user.displayName} (${user.email})` || "Unknown",
+      }),
+      {}
+    );
+    const rankedResults = uids.map((uid) => ({
       displayName: uidToDisplayName[uid],
-      totalDistance: distanceSumByUid[uid]
+      totalDistance: distanceSumByUid[uid],
     }));
     rankedResults.sort((a, b) => a.totalDistance - b.totalDistance);
-    room.rankings = rankedResults.map(result => ({
+    room.rankings = rankedResults.map((result) => ({
       displayName: result.displayName,
-      totalDistance: result.totalDistance
+      totalDistance: result.totalDistance,
     }));
     room.winnerCalculated = true;
     if (rankedResults.length > 0) {
       // update numGamesWon for the winner
       const winnerUsername = rankedResults[0].displayName;
-      await User.updateOne({ displayName: winnerUsername }, { $inc: { numGamesWon: 1 } }).session(session);;
+      await User.updateOne(
+        { displayName: winnerUsername },
+        { $inc: { numGamesWon: 1 } }
+      ).session(session);
     }
     // update numGamesCompleted for everyone
     for (const playerUid of room.players) {
-      await User.updateOne({ uid: playerUid }, { $inc: { numGamesCompleted: 1 } }).session(session);
+      await User.updateOne(
+        { uid: playerUid },
+        { $inc: { numGamesCompleted: 1 } }
+      ).session(session);
     }
     await room.save({ session });
     await session.commitTransaction();

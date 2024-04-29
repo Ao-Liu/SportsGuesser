@@ -6,8 +6,12 @@ var cors = require("cors");
 const bodyParser = require("body-parser");
 const logger = require("morgan");
 const GameRoom = require("./models/gameRoom");
-const { generateUniqueCode, generateRandomCoords, calculateAndRankResults } = require("./utils");
-const User = require('./models/user');
+const {
+  generateUniqueCode,
+  generateRandomCoords,
+  calculateAndRankResults,
+} = require("./utils");
+const User = require("./models/user");
 
 const API_PORT = 3001;
 const app = express();
@@ -88,7 +92,8 @@ io.on("connection", (socket) => {
         socket.emit("error", "Room not found");
         return;
       }
-      if (room.gameStarted) { // users should not join a game room if it has started.
+      if (room.gameStarted) {
+        // users should not join a game room if it has started.
         socket.emit("gameStarted");
         return;
       }
@@ -152,7 +157,17 @@ io.on("connection", (socket) => {
         return;
       }
       socket.join(roomId);
-      room.currentCoords = await generateRandomCoords(); // TODO: change this
+      const visitedCourtIds = room.visitedCourts.map((court) => court.courtId);
+      room.currentCoords = await generateRandomCoords(visitedCourtIds);
+      room.visitedCourts.push({
+        courtId: room.currentCoords.courtId,
+        name: room.currentCoords.name,
+        url: room.currentCoords.url,
+        lat: room.currentCoords.lat,
+        lng: room.currentCoords.lng,
+        visitedDate: new Date(),
+      });
+      console.log(room.visitedCourts);
       await room.save();
       io.to(roomId).emit("levelInfoFetched", {
         level: room.currentLevel,
@@ -170,23 +185,33 @@ io.on("connection", (socket) => {
   socket.on("nextLevel", async ({ roomId, currentLevel }) => {
     try {
       const room = await GameRoom.findById(roomId);
-      if (room) {
-        if (room.numOfLevels == currentLevel) {
-          socket.join(roomId);
-          socket.emit("gameEnded");
-        } else {
-          const nextLevel = currentLevel + 1;
-          room.currentLevel = nextLevel;
-          await room.save();
-          socket.join(roomId);
-          room.currentCoords = await generateRandomCoords(); // TODO: change this
-          socket.emit("newLevelInfo", {
-            level: room.currentLevel,
-            coords: room.currentCoords,
-          });
-        }
-      } else {
+      if (!room) {
         socket.emit("error", "Room not found");
+        return;
+      }
+      socket.join(roomId); 
+      if (room.numOfLevels === currentLevel) {
+        socket.emit("gameEnded");
+      } else {
+        const nextLevel = currentLevel + 1;
+        room.currentLevel = nextLevel;
+        const visitedCourtIds = room.visitedCourts.map(
+          (court) => court.courtId
+        );
+        room.currentCoords = await generateRandomCoords(visitedCourtIds);
+        room.visitedCourts.push({
+          courtId: room.currentCoords.courtId,
+          name: room.currentCoords.name,
+          url: room.currentCoords.url,
+          lat: room.currentCoords.lat,
+          lng: room.currentCoords.lng,
+          visitedDate: new Date(),
+        });
+        await room.save(); 
+        io.to(roomId).emit("newLevelInfo", {
+          level: room.currentLevel,
+          coords: room.currentCoords,
+        });
       }
     } catch (err) {
       console.error("Error updating level:", err);
