@@ -89,17 +89,29 @@ async function calculateAndRankResults(roomId) {
     if (rankedResults.length > 0) {
       // update numGamesWon for the winner
       const winnerUsername = rankedResults[0].displayName;
+      const displayName = winnerUsername.split(" (")[0];
       await User.updateOne(
-        { displayName: winnerUsername },
+        { displayName: displayName },
         { $inc: { numGamesWon: 1 } }
       ).session(session);
     }
     // update numGamesCompleted for everyone
     for (const playerUid of room.players) {
-      await User.updateOne(
-        { uid: playerUid },
-        { $inc: { numGamesCompleted: 1 } }
-      ).session(session);
+      const user = await User.findOne({ uid: playerUid }).session(session);
+      if (!user) {
+        console.log("User not found:", playerUid);
+        continue;
+      }
+      user.numGamesCompleted += 1;
+      for (const court of room.visitedCourts) {
+        const isVisited = user.visitedCourts.some(
+          (v) => v.courtId === court.courtId
+        );
+        if (!isVisited) {
+          user.visitedCourts.push({ courtId: court.courtId });
+        }
+      }
+      await user.save({ session });
     }
     await room.save({ session });
     await session.commitTransaction();
