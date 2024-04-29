@@ -111,7 +111,7 @@ async function calculateAndRankResults(roomId) {
           const newCourt = {
             courtId: court.courtId,
             name: court.name,
-            photoURL: court.photoURL,
+            photoURL: court.url,
             lat: court.lat,
             lng: court.lng,
           };

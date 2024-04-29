@@ -130,8 +130,8 @@ const DesktopProfilePage = () => {
           userInfo.visitedCourts.map((court, index) => (
             <div key={index} style={{ marginLeft: '1.5vw', marginRight: '1.5vw', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Avatar
-                alt={court.CourtdisplayName}
-                src={court.CourtPhotoURL}
+                alt={court.name}
+                src={court.photoURL}
                 style={{ width: '15vw', height: '15vw', marginTop: '2.5vw' }}
               />
               <Typography variant="subtitle1" style={{ fontSize: '1.5vw' }}>
