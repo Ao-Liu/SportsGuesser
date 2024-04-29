@@ -84,8 +84,10 @@ const GameIndexPage = () => {
        * Handles game room creation.
        */
       socket.on("roomCreated", (data) => {
-        setResponse(`Room Created! Invite Code: ${data.inviteCode}`);
-        navigate(`/game/${data.room._id}`);
+        if (loginUserID === data.room.players[0]) {
+          setResponse(`Room Created! Invite Code: ${data.inviteCode}`);
+          navigate(`/game/${data.room._id}`);
+        }
       });
       /**
        * Handles joining game room.

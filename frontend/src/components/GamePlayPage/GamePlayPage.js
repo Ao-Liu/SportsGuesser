@@ -100,7 +100,6 @@ const GamePlayPage = () => {
        * Processes room details.
        */
     newSocket.on("roomDetails", (room) => {
-      console.log(`111111111 ${room}`);
       if (room.winnerCalculated) {
         navigate(`/game/${roomId}/results`);
       }

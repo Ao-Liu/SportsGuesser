@@ -46,7 +46,7 @@ const GameRoomPage = () => {
        */
       socket.on("username", (data) => {
         setUsernames((prevUsernames) => {
-          const newSet = new Set(prevUsernames); // TODO: issue with identical name
+          const newSet = new Set(prevUsernames);
           newSet.add(data);
           return newSet;
         });
@@ -55,8 +55,6 @@ const GameRoomPage = () => {
        * Listens to starting game.
        */
       socket.on("gameStarted", (data) => {
-        console.log("Game has started!");
-        alert("Game has started!");
         navigate(`/game/${roomId}/play`, {
           state: { roomId: roomId, level: data.level, coords: data.coords },
         });

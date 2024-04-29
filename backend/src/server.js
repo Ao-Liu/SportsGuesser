@@ -57,7 +57,6 @@ io.on("connection", (socket) => {
    */
   socket.on("createRoom", async (data) => {
     try {
-      console.log(data);
       if (!data.numOfLevels) {
         throw new Error("Required field missing");
       }
