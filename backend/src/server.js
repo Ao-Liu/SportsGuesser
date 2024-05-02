@@ -209,6 +209,7 @@ io.on("connection", (socket) => {
         });
         await room.save(); 
         io.to(roomId).emit("newLevelInfo", {
+          owner: room.players[0],
           level: room.currentLevel,
           coords: room.currentCoords,
         });

@@ -113,8 +113,6 @@ const GamePlayPage = () => {
     newSocket.emit("getLevelInfo", { roomId });
     newSocket.on("levelInfoFetched", (data) => {
       setLevelInfo(data);
-      console.log("Received level info:", data);
-      console.log("Received level info: levelInfo levelInfo", levelInfo);
     });
     newSocket.on("levelCompleted", (data) => {
       setLevelCompleted(true);
@@ -122,7 +120,9 @@ const GamePlayPage = () => {
     });
     newSocket.on("newLevelInfo", (data) => {
       setLevelInfo(data);
-      console.log("Received new level info:", data);
+      setLevelCompleted(false);
+      setHasSubmitted(false);
+      console.log(`new level info ${data}`);
     });
     newSocket.on("gameEnded", () => {
       console.log("Game ended");
