@@ -52,7 +52,7 @@ const DesktopProfilePage = () => {
   const ConqueredCourtStyle = {
     ...textStyles,
     marginTop: '2vw',
-    marginBottom: '0.5vw',
+    marginBottom: '2.5vw',
     fontSize: '2.5vw'
   }
 
@@ -122,19 +122,19 @@ const DesktopProfilePage = () => {
       </Typography>
 
       <Typography style={ConqueredCourtStyle} variant="h4">
-      <i class="bi bi-pin-map-fill"></i> Visited Courts <i class="bi bi-pin-map-fill"></i>
+        <i class="bi bi-pin-map-fill"></i> Visited Courts <i class="bi bi-pin-map-fill"></i>
       </Typography>
 
-      <Box display="flex" justifyContent="center">
+      <Box display="flex" flexWrap="wrap">
         {userInfo.visitedCourts && userInfo.visitedCourts.length > 0 ? (
           userInfo.visitedCourts.map((court, index) => (
-            <div key={index} style={{ marginLeft: '1.5vw', marginRight: '1.5vw', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+            <div key={index} style={{ margin: '1.5vw', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
               <Avatar
                 alt={court.name}
                 src={court.photoURL}
-                style={{ width: '15vw', height: '15vw', marginTop: '2.5vw' }}
+                style={{ width: '15vw', height: '15vw', margin: 'auto', marginBottom: '0.5vw' }}
               />
-              <Typography variant="subtitle1" style={{ fontSize: '1.5vw' }}>
+              <Typography variant="subtitle1" style={{ fontSize: '1.5vw', color: 'black', textAlign: 'center', width:'30vw', height: '8vw' }}>
                 {court.name}
               </Typography>
             </div>
