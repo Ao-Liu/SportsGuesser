@@ -20,10 +20,33 @@ const gameRoomSchema = new Schema({
   usedIndices: { type: [Number], default: [] },
   // visitedStadiumID: { type: [String], default: [] },
   currentCoords: {
-    type: { courtId: String, name: String, url: String, lat: Number, lng: Number },
-    default: { name:"", url:"", lat: 0, lng: 0 },
+    type: {
+      courtId: String,
+      name: String,
+      url: String,
+      lat: Number,
+      lng: Number,
+    },
+    default: { name: "", url: "", lat: 0, lng: 0 },
   },
   createdAt: { type: Date, default: Date.now },
+  winnerCalculated: { type: Boolean, default: false },
+  rankings: [
+    {
+      displayName: String,
+      totalDistance: Number,
+    },
+  ],
+  visitedCourts: [
+    {
+      courtId: String,
+      name: String,
+      url: String,
+      lat: Number,
+      lng: Number,
+      visitedDate: Date,
+    },
+  ],
 });
 
 module.exports = mongoose.model("GameRoom", gameRoomSchema);

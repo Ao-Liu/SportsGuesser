@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useLocation } from "react-router-dom";
+import { useParams } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import io from "socket.io-client";
 
@@ -7,7 +8,7 @@ import { auth } from '../../firebase-config.js';
 
 const GamePlayPage = () => {
   const location = useLocation();
-  const { roomId } = location.state || {};
+  const { roomId } = useParams();
   const [socket, setSocket] = useState(null);
   const [playerLat, setPlayerLat] = useState("");
   const [playerLng, setPlayerLng] = useState("");
@@ -17,6 +18,7 @@ const GamePlayPage = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   const mapRef = useRef(null);
+  const mapRef_dom = useRef(null);
   const secondMapRef = useRef(null);  // answer map
 
   const userMarkerRef = useRef(null);
@@ -43,15 +45,20 @@ const GamePlayPage = () => {
   };
 
   const initMap = () => {
-    if (!mapRef.current || !(mapRef.current instanceof Node)) {
+    if (!mapRef_dom.current || !(mapRef_dom.current instanceof Node)) {
       console.error("Error: Map container is not a valid DOM node.");
       return;
     }
 
+    // Check if a map instance already exists
+    if (mapRef.current) {
+      mapRef.current = null;  // Dispose of the previous map instance if necessary
+    }
+
     // Initialize the map
-    const map = new window.google.maps.Map(mapRef.current, {
-      center: { lat: 0, lng: 0 },
-      zoom: 2,
+    const map = new window.google.maps.Map(mapRef_dom.current, {
+      center: { lat: levelInfo.coords.lat, lng: levelInfo.coords.lng },
+      zoom: 10,
     });
 
     map.addListener("click", (e) => {
@@ -91,6 +98,18 @@ const GamePlayPage = () => {
   useEffect(() => {
     const newSocket = io(`http://localhost:3001`);
     setSocket(newSocket);
+    /**
+       * Fetches room details from backend.
+       */
+    newSocket.emit("getRoomDetails", roomId);
+    /**
+       * Processes room details.
+       */
+    newSocket.on("roomDetails", (room) => {
+      if (room.winnerCalculated) {
+        navigate(`/game/${roomId}/results`);
+      }
+    });
     newSocket.emit("getLevelInfo", { roomId });
     newSocket.on("levelInfoFetched", (data) => {
       setLevelInfo(data);
@@ -124,7 +143,7 @@ const GamePlayPage = () => {
   }, [roomId, navigate]);
 
   useEffect(() => {
-    if (levelInfo && isMapScriptLoaded && mapRef.current && secondMapRef.current) {
+    if (levelInfo && isMapScriptLoaded && mapRef_dom.current && secondMapRef.current) {
       initMap();
       initAnsMap();
     }
@@ -206,8 +225,6 @@ const GamePlayPage = () => {
   // Retrieve the UID from local storage
   const loginUserID = localStorage.getItem('userUID');
 
-
-
   const handleSubmit = () => {
     if (socket && playerLat && playerLng && levelInfo?.coords) {
       const playerLocation = new window.google.maps.LatLng(playerLat, playerLng);
@@ -255,7 +272,7 @@ const GamePlayPage = () => {
         </div>
         <div>
           <p style={{ ...textStyle, textAlign: 'center' }}>You answer..</p>
-          <div ref={mapRef} style={{ height: '600px', width: '600px', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}></div>
+          <div ref={mapRef_dom} style={{ height: '600px', width: '600px', boxShadow: '0 0 10px rgba(0,0,0,0.5)' }}></div>
         </div>
       </div>
       {!hasSubmitted && (
